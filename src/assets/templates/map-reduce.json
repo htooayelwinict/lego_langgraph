@@ -1,0 +1,181 @@
+{
+  "id": "map-reduce",
+  "name": "Map-Reduce",
+  "description": "Parallel processing concept. Router dispatches to multiple handlers, then Reducer aggregates results.",
+  "difficulty": "advanced",
+  "tags": ["parallel", "reducer", "aggregation", "advanced"],
+  "graph": {
+    "version": "v1",
+    "nodes": [
+      {
+        "id": "start-1",
+        "type": "Start",
+        "position": { "x": 100, "y": 200 },
+        "data": {
+          "label": "Start",
+          "config": {}
+        }
+      },
+      {
+        "id": "router-1",
+        "type": "Router",
+        "position": { "x": 300, "y": 200 },
+        "data": {
+          "label": "Dispatch",
+          "config": {
+            "routeKey": "category"
+          }
+        }
+      },
+      {
+        "id": "llm-a",
+        "type": "LLM",
+        "position": { "x": 550, "y": 80 },
+        "data": {
+          "label": "Process A",
+          "config": {}
+        }
+      },
+      {
+        "id": "llm-b",
+        "type": "LLM",
+        "position": { "x": 550, "y": 200 },
+        "data": {
+          "label": "Process B",
+          "config": {}
+        }
+      },
+      {
+        "id": "llm-c",
+        "type": "LLM",
+        "position": { "x": 550, "y": 320 },
+        "data": {
+          "label": "Process C",
+          "config": {}
+        }
+      },
+      {
+        "id": "reducer-1",
+        "type": "Reducer",
+        "position": { "x": 750, "y": 200 },
+        "data": {
+          "label": "Aggregate",
+          "config": {
+            "strategy": "merge"
+          }
+        }
+      },
+      {
+        "id": "end-1",
+        "type": "End",
+        "position": { "x": 950, "y": 200 },
+        "data": {
+          "label": "End",
+          "config": {}
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "edge-start-router",
+        "source": "start-1",
+        "target": "router-1",
+        "data": {}
+      },
+      {
+        "id": "edge-router-a",
+        "source": "router-1",
+        "target": "llm-a",
+        "data": {
+          "condition": "category === 'A'",
+          "label": "A"
+        }
+      },
+      {
+        "id": "edge-router-b",
+        "source": "router-1",
+        "target": "llm-b",
+        "data": {
+          "condition": "category === 'B'",
+          "label": "B"
+        }
+      },
+      {
+        "id": "edge-router-c",
+        "source": "router-1",
+        "target": "llm-c",
+        "data": {
+          "condition": "category === 'C'",
+          "label": "C"
+        }
+      },
+      {
+        "id": "edge-a-reducer",
+        "source": "llm-a",
+        "target": "reducer-1",
+        "data": {}
+      },
+      {
+        "id": "edge-b-reducer",
+        "source": "llm-b",
+        "target": "reducer-1",
+        "data": {}
+      },
+      {
+        "id": "edge-c-reducer",
+        "source": "llm-c",
+        "target": "reducer-1",
+        "data": {}
+      },
+      {
+        "id": "edge-reducer-end",
+        "source": "reducer-1",
+        "target": "end-1",
+        "data": {}
+      }
+    ],
+    "metadata": {
+      "name": "Map-Reduce",
+      "description": "Parallel processing with aggregation",
+      "createdAt": "2026-01-06T00:00:00.000Z"
+    }
+  },
+  "stateSchema": {
+    "version": "v1",
+    "fields": [
+      {
+        "key": "input",
+        "type": "string",
+        "required": true,
+        "description": "Input data"
+      },
+      {
+        "key": "category",
+        "type": "enum",
+        "required": true,
+        "description": "Routing category",
+        "enumValues": ["A", "B", "C"]
+      },
+      {
+        "key": "partialResults",
+        "type": "array",
+        "required": true,
+        "default": [],
+        "description": "Results from parallel branches"
+      },
+      {
+        "key": "aggregated",
+        "type": "object",
+        "required": true,
+        "default": {},
+        "description": "Merged final result"
+      },
+      {
+        "key": "output",
+        "type": "string",
+        "required": true,
+        "description": "Final output"
+      }
+    ]
+  }
+}

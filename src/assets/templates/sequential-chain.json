@@ -1,0 +1,123 @@
+{
+  "id": "sequential-chain",
+  "name": "Sequential Chain",
+  "description": "Linear data transformation through multiple LLM calls. Each step builds on the previous output.",
+  "difficulty": "beginner",
+  "tags": ["sequential", "chain", "pipeline"],
+  "graph": {
+    "version": "v1",
+    "nodes": [
+      {
+        "id": "start-1",
+        "type": "Start",
+        "position": { "x": 100, "y": 200 },
+        "data": {
+          "label": "Start",
+          "config": {}
+        }
+      },
+      {
+        "id": "llm-1",
+        "type": "LLM",
+        "position": { "x": 300, "y": 200 },
+        "data": {
+          "label": "Step 1: Extract",
+          "config": {
+            "prompt": "Extract key information from input"
+          }
+        }
+      },
+      {
+        "id": "llm-2",
+        "type": "LLM",
+        "position": { "x": 500, "y": 200 },
+        "data": {
+          "label": "Step 2: Transform",
+          "config": {
+            "prompt": "Transform the extracted information"
+          }
+        }
+      },
+      {
+        "id": "llm-3",
+        "type": "LLM",
+        "position": { "x": 700, "y": 200 },
+        "data": {
+          "label": "Step 3: Format",
+          "config": {
+            "prompt": "Format the final output"
+          }
+        }
+      },
+      {
+        "id": "end-1",
+        "type": "End",
+        "position": { "x": 900, "y": 200 },
+        "data": {
+          "label": "End",
+          "config": {}
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "edge-start-llm1",
+        "source": "start-1",
+        "target": "llm-1",
+        "data": {}
+      },
+      {
+        "id": "edge-llm1-llm2",
+        "source": "llm-1",
+        "target": "llm-2",
+        "data": {}
+      },
+      {
+        "id": "edge-llm2-llm3",
+        "source": "llm-2",
+        "target": "llm-3",
+        "data": {}
+      },
+      {
+        "id": "edge-llm3-end",
+        "source": "llm-3",
+        "target": "end-1",
+        "data": {}
+      }
+    ],
+    "metadata": {
+      "name": "Sequential Chain",
+      "description": "Linear processing pipeline",
+      "createdAt": "2026-01-06T00:00:00.000Z"
+    }
+  },
+  "stateSchema": {
+    "version": "v1",
+    "fields": [
+      {
+        "key": "input",
+        "type": "string",
+        "required": true,
+        "description": "Initial input"
+      },
+      {
+        "key": "extracted",
+        "type": "string",
+        "required": false,
+        "description": "Output from step 1"
+      },
+      {
+        "key": "transformed",
+        "type": "string",
+        "required": false,
+        "description": "Output from step 2"
+      },
+      {
+        "key": "output",
+        "type": "string",
+        "required": true,
+        "description": "Final output"
+      }
+    ]
+  }
+}

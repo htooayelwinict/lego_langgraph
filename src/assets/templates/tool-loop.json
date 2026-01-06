@@ -1,0 +1,160 @@
+{
+  "id": "tool-loop",
+  "name": "Tool Loop",
+  "description": "Repeated tool calls until a condition is met. Shows iteration with multiple tool executions.",
+  "difficulty": "intermediate",
+  "tags": ["loop", "tools", "iteration", "multi-step"],
+  "graph": {
+    "version": "v1",
+    "nodes": [
+      {
+        "id": "start-1",
+        "type": "Start",
+        "position": { "x": 100, "y": 200 },
+        "data": {
+          "label": "Start",
+          "config": {}
+        }
+      },
+      {
+        "id": "llm-1",
+        "type": "LLM",
+        "position": { "x": 300, "y": 200 },
+        "data": {
+          "label": "Plan Tool Use",
+          "config": {
+            "prompt": "Decide which tool to call and with what parameters"
+          }
+        }
+      },
+      {
+        "id": "tool-1",
+        "type": "Tool",
+        "position": { "x": 500, "y": 200 },
+        "data": {
+          "label": "Execute Tool",
+          "config": {
+            "toolName": "api_call"
+          }
+        }
+      },
+      {
+        "id": "loop-1",
+        "type": "LoopGuard",
+        "position": { "x": 700, "y": 200 },
+        "data": {
+          "label": "More Needed?",
+          "config": {
+            "condition": "state.completed === false"
+          }
+        }
+      },
+      {
+        "id": "llm-2",
+        "type": "LLM",
+        "position": { "x": 900, "y": 120 },
+        "data": {
+          "label": "Synthesize",
+          "config": {
+            "prompt": "Combine all tool results into final answer"
+          }
+        }
+      },
+      {
+        "id": "end-1",
+        "type": "End",
+        "position": { "x": 1100, "y": 120 },
+        "data": {
+          "label": "End",
+          "config": {}
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "edge-start-llm",
+        "source": "start-1",
+        "target": "llm-1",
+        "data": {}
+      },
+      {
+        "id": "edge-llm-tool",
+        "source": "llm-1",
+        "target": "tool-1",
+        "data": {}
+      },
+      {
+        "id": "edge-tool-loop",
+        "source": "tool-1",
+        "target": "loop-1",
+        "data": {}
+      },
+      {
+        "id": "edge-loop-continue",
+        "source": "loop-1",
+        "target": "llm-1",
+        "data": {
+          "condition": "continue",
+          "label": "need more"
+        }
+      },
+      {
+        "id": "edge-loop-done",
+        "source": "loop-1",
+        "target": "llm-2",
+        "data": {
+          "condition": "done",
+          "label": "complete"
+        }
+      },
+      {
+        "id": "edge-synthesize-end",
+        "source": "llm-2",
+        "target": "end-1",
+        "data": {}
+      }
+    ],
+    "metadata": {
+      "name": "Tool Loop",
+      "description": "Iterative tool execution pattern",
+      "createdAt": "2026-01-06T00:00:00.000Z"
+    }
+  },
+  "stateSchema": {
+    "version": "v1",
+    "fields": [
+      {
+        "key": "query",
+        "type": "string",
+        "required": true,
+        "description": "User query"
+      },
+      {
+        "key": "toolPlan",
+        "type": "array",
+        "required": false,
+        "description": "Planned tool calls"
+      },
+      {
+        "key": "toolResults",
+        "type": "array",
+        "required": true,
+        "default": [],
+        "description": "Accumulated tool results"
+      },
+      {
+        "key": "completed",
+        "type": "boolean",
+        "required": true,
+        "default": false,
+        "description": "Whether all tool calls are done"
+      },
+      {
+        "key": "answer",
+        "type": "string",
+        "required": true,
+        "description": "Final synthesized answer"
+      }
+    ]
+  }
+}

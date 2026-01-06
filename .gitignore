@@ -59,4 +59,8 @@ yarn-error.log*
 
 # Local
 .claude/
-plan/
+
+# Playwright
+test-results/
+playwright-report/
+playwright/.cache/
