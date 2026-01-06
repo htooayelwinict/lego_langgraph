@@ -1,17 +1,17 @@
 import { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
+import { X, Database } from 'lucide-react';
 import { useUiStore } from '@/store/uiStore';
 import { useStateStore } from '@/store/stateStore';
 import { StateField, FieldType } from '@/models/state';
 import { EnumValuesEditor } from './EnumValuesEditor';
 
-const FIELD_TYPES: { value: FieldType; label: string }[] = [
-  { value: 'string', label: 'String' },
-  { value: 'number', label: 'Number' },
-  { value: 'boolean', label: 'Boolean' },
-  { value: 'array', label: 'Array' },
-  { value: 'object', label: 'Object' },
-  { value: 'enum', label: 'Enum' },
+const FIELD_TYPES: { value: FieldType; label: string; color: string }[] = [
+  { value: 'string', label: 'String', color: '#60a5fa' },
+  { value: 'number', label: 'Number', color: '#34d399' },
+  { value: 'boolean', label: 'Boolean', color: '#a78bfa' },
+  { value: 'array', label: 'Array', color: '#fbbf24' },
+  { value: 'object', label: 'Object', color: '#94a3b8' },
+  { value: 'enum', label: 'Enum', color: '#f472b6' },
 ];
 
 export function StateFieldEditor() {
@@ -192,136 +192,375 @@ export function StateFieldEditor() {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+    <div className="modal-overlay">
+      <style>{`
+        .modal-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.7);
+          backdrop-filter: blur(4px);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 100;
+          padding: var(--space-4);
+        }
+
+        .modal-container {
+          background: var(--bg-secondary);
+          border: 1px solid var(--border-subtle);
+          border-radius: var(--radius-lg);
+          box-shadow: var(--shadow-lg);
+          width: 100%;
+          max-width: 480px;
+          max-height: calc(100vh - 48px);
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+        }
+
+        .modal-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: var(--space-4) var(--space-5);
+          border-bottom: 1px solid var(--border-subtle);
+          flex-shrink: 0;
+        }
+
+        .modal-title {
+          display: flex;
+          align-items: center;
+          gap: var(--space-2);
+          font-size: 16px;
+          font-weight: 600;
+          color: var(--text-primary);
+        }
+
+        .modal-title svg {
+          color: var(--accent-purple);
+        }
+
+        .modal-close {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 32px;
+          height: 32px;
+          background: transparent;
+          border: none;
+          border-radius: var(--radius-sm);
+          color: var(--text-muted);
+          cursor: pointer;
+          transition: all var(--transition-fast);
+        }
+
+        .modal-close:hover {
+          background: var(--bg-elevated);
+          color: var(--text-primary);
+        }
+
+        .modal-body {
+          flex: 1;
+          overflow-y: auto;
+          padding: var(--space-5);
+        }
+
+        .modal-form {
+          display: flex;
+          flex-direction: column;
+          gap: var(--space-5);
+        }
+
+        .form-error {
+          padding: var(--space-3);
+          background: rgba(239, 68, 68, 0.1);
+          border: 1px solid rgba(239, 68, 68, 0.3);
+          border-radius: var(--radius-md);
+          font-size: 13px;
+          color: var(--accent-red-light);
+        }
+
+        .form-field {
+          display: flex;
+          flex-direction: column;
+          gap: var(--space-2);
+        }
+
+        .form-label {
+          font-size: 13px;
+          font-weight: 500;
+          color: var(--text-secondary);
+        }
+
+        .form-label .required {
+          color: var(--accent-red);
+          margin-left: 2px;
+        }
+
+        .form-input {
+          width: 100%;
+          padding: var(--space-3);
+          background: var(--bg-primary);
+          border: 1px solid var(--border-default);
+          border-radius: var(--radius-md);
+          color: var(--text-primary);
+          font-size: 14px;
+          transition: all var(--transition-fast);
+        }
+
+        .form-input:focus {
+          outline: none;
+          border-color: var(--accent-blue);
+          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .form-input::placeholder {
+          color: var(--text-muted);
+        }
+
+        .form-input:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+
+        .form-input.mono {
+          font-family: var(--font-mono);
+        }
+
+        .form-hint {
+          font-size: 11px;
+          color: var(--text-muted);
+        }
+
+        .form-select {
+          width: 100%;
+          padding: var(--space-3);
+          background: var(--bg-primary);
+          border: 1px solid var(--border-default);
+          border-radius: var(--radius-md);
+          color: var(--text-primary);
+          font-size: 14px;
+          cursor: pointer;
+          transition: all var(--transition-fast);
+        }
+
+        .form-select:focus {
+          outline: none;
+          border-color: var(--accent-blue);
+          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .form-select option {
+          background: var(--bg-secondary);
+          color: var(--text-primary);
+        }
+
+        .form-checkbox-row {
+          display: flex;
+          align-items: center;
+          gap: var(--space-3);
+        }
+
+        .form-checkbox {
+          width: 18px;
+          height: 18px;
+          accent-color: var(--accent-blue);
+          cursor: pointer;
+        }
+
+        .form-checkbox-label {
+          font-size: 13px;
+          font-weight: 500;
+          color: var(--text-secondary);
+          cursor: pointer;
+        }
+
+        .form-textarea {
+          width: 100%;
+          padding: var(--space-3);
+          background: var(--bg-primary);
+          border: 1px solid var(--border-default);
+          border-radius: var(--radius-md);
+          color: var(--text-primary);
+          font-size: 14px;
+          resize: vertical;
+          min-height: 60px;
+          transition: all var(--transition-fast);
+        }
+
+        .form-textarea:focus {
+          outline: none;
+          border-color: var(--accent-blue);
+          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .form-textarea::placeholder {
+          color: var(--text-muted);
+        }
+
+        .form-textarea.mono {
+          font-family: var(--font-mono);
+          font-size: 13px;
+        }
+
+        .modal-footer {
+          display: flex;
+          gap: var(--space-3);
+          padding: var(--space-4) var(--space-5);
+          border-top: 1px solid var(--border-subtle);
+          flex-shrink: 0;
+        }
+
+        .btn {
+          flex: 1;
+          padding: var(--space-3) var(--space-4);
+          border-radius: var(--radius-md);
+          font-size: 14px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all var(--transition-fast);
+        }
+
+        .btn-secondary {
+          background: transparent;
+          border: 1px solid var(--border-default);
+          color: var(--text-secondary);
+        }
+
+        .btn-secondary:hover {
+          background: var(--bg-elevated);
+          color: var(--text-primary);
+        }
+
+        .btn-primary {
+          background: var(--gradient-primary);
+          border: none;
+          color: white;
+        }
+
+        .btn-primary:hover {
+          transform: translateY(-1px);
+          box-shadow: var(--shadow-md), var(--shadow-glow-blue);
+        }
+      `}</style>
+
+      <div className="modal-container">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold">
-            {isEditing ? 'Edit Field' : 'Add Field'}
-          </h2>
-          <button
-            onClick={closeModal}
-            className="text-gray-400 hover:text-gray-600 p-1 rounded hover:bg-gray-100"
-          >
-            <X className="w-5 h-5" />
+        <div className="modal-header">
+          <div className="modal-title">
+            <Database size={20} />
+            <span>{isEditing ? 'Edit Field' : 'Add Field'}</span>
+          </div>
+          <button onClick={closeModal} className="modal-close">
+            <X size={18} />
           </button>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="p-4 space-y-4">
-          {/* Error */}
-          {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
-              {error}
+        {/* Body */}
+        <div className="modal-body">
+          <form onSubmit={handleSubmit} className="modal-form" id="field-form">
+            {/* Error */}
+            {error && <div className="form-error">{error}</div>}
+
+            {/* Key */}
+            <div className="form-field">
+              <label className="form-label">
+                Field Key <span className="required">*</span>
+              </label>
+              <input
+                type="text"
+                value={key}
+                onChange={(e) => setKey(e.target.value)}
+                className="form-input mono"
+                placeholder="my_field"
+                disabled={isEditing}
+              />
+              <p className="form-hint">
+                Valid JavaScript identifier (letters, numbers, underscore)
+              </p>
             </div>
-          )}
 
-          {/* Key */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Field Key <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              value={key}
-              onChange={(e) => setKey(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono"
-              placeholder="my_field"
-              disabled={isEditing}
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              Valid JavaScript identifier (letters, numbers, underscore)
-            </p>
-          </div>
+            {/* Type */}
+            <div className="form-field">
+              <label className="form-label">
+                Type <span className="required">*</span>
+              </label>
+              <select
+                value={type}
+                onChange={(e) => setType(e.target.value as FieldType)}
+                className="form-select"
+              >
+                {FIELD_TYPES.map((t) => (
+                  <option key={t.value} value={t.value}>
+                    {t.label}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-          {/* Type */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Type <span className="text-red-500">*</span>
-            </label>
-            <select
-              value={type}
-              onChange={(e) => setType(e.target.value as FieldType)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            >
-              {FIELD_TYPES.map((t) => (
-                <option key={t.value} value={t.value}>
-                  {t.label}
-                </option>
-              ))}
-            </select>
-          </div>
+            {/* Required */}
+            <div className="form-checkbox-row">
+              <input
+                type="checkbox"
+                id="required"
+                checked={required}
+                onChange={(e) => setRequired(e.target.checked)}
+                className="form-checkbox"
+              />
+              <label htmlFor="required" className="form-checkbox-label">
+                Required field
+              </label>
+            </div>
 
-          {/* Required */}
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              id="required"
-              checked={required}
-              onChange={(e) => setRequired(e.target.checked)}
-              className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
-            />
-            <label htmlFor="required" className="text-sm font-medium text-gray-700">
-              Required field
-            </label>
-          </div>
+            {/* Default Value */}
+            <div className="form-field">
+              <label className="form-label">
+                Default Value {required && <span className="required">*</span>}
+                {type === 'enum' && (
+                  <span style={{ fontWeight: 400, marginLeft: '8px' }}>(one of the enum values)</span>
+                )}
+              </label>
+              <textarea
+                value={defaultJSON}
+                onChange={(e) => setDefaultJSON(e.target.value)}
+                className="form-textarea mono"
+                placeholder={type === 'string' ? '"text"' : type === 'number' ? '0' : '[]'}
+                rows={2}
+              />
+              <p className="form-hint">
+                Enter as JSON (e.g., &quot;hello&quot;, 42, true, [], {'{'}{'}'})
+              </p>
+            </div>
 
-          {/* Default Value */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Default Value {required && <span className="text-red-500">*</span>}
-              {type === 'enum' && (
-                <span className="text-xs text-gray-500">(one of the enum values)</span>
-              )}
-            </label>
-            <textarea
-              value={defaultJSON}
-              onChange={(e) => setDefaultJSON(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-sm"
-              placeholder={type === 'string' ? '"text"' : type === 'number' ? '0' : '[]'}
-              rows={2}
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              Enter as JSON (e.g., &quot;hello&quot;, 42, true, [], {'{'}{'}'})
-            </p>
-          </div>
+            {/* Description */}
+            <div className="form-field">
+              <label className="form-label">Description</label>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="form-textarea"
+                placeholder="What this field represents..."
+                rows={2}
+              />
+            </div>
 
-          {/* Description */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Description
-            </label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-              placeholder="What this field represents..."
-              rows={2}
-            />
-          </div>
+            {/* Enum Values */}
+            {type === 'enum' && (
+              <EnumValuesEditor values={enumValues} onChange={setEnumValues} />
+            )}
+          </form>
+        </div>
 
-          {/* Enum Values */}
-          {type === 'enum' && (
-            <EnumValuesEditor values={enumValues} onChange={setEnumValues} />
-          )}
-
-          {/* Actions */}
-          <div className="flex gap-2 pt-2">
-            <button
-              type="button"
-              onClick={closeModal}
-              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              {isEditing ? 'Save Changes' : 'Add Field'}
-            </button>
-          </div>
-        </form>
+        {/* Footer */}
+        <div className="modal-footer">
+          <button type="button" onClick={closeModal} className="btn btn-secondary">
+            Cancel
+          </button>
+          <button type="submit" form="field-form" className="btn btn-primary">
+            {isEditing ? 'Save Changes' : 'Add Field'}
+          </button>
+        </div>
       </div>
     </div>
   );

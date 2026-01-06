@@ -1,27 +1,107 @@
+/* ==========================================================================
+   LangGraph Visual Modeler - Design System
+   ========================================================================== */
+
+/* Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* ==========================================================================
+   CSS Custom Properties (Design Tokens)
+   ========================================================================== */
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+  /* Typography */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'SF Mono', 'Fira Code', 'Consolas', monospace;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  /* Colors - Dark Theme */
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-elevated: #334155;
+  --bg-glass: rgba(30, 41, 59, 0.85);
+  --bg-glass-light: rgba(51, 65, 85, 0.6);
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  /* Borders */
+  --border-subtle: rgba(148, 163, 184, 0.1);
+  --border-default: rgba(148, 163, 184, 0.2);
+  --border-strong: rgba(148, 163, 184, 0.3);
+
+  /* Text */
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --text-inverse: #0f172a;
+
+  /* Accent Colors */
+  --accent-blue: #3b82f6;
+  --accent-blue-light: #60a5fa;
+  --accent-purple: #8b5cf6;
+  --accent-purple-light: #a78bfa;
+  --accent-cyan: #06b6d4;
+  --accent-cyan-light: #22d3ee;
+  --accent-emerald: #10b981;
+  --accent-emerald-light: #34d399;
+  --accent-amber: #f59e0b;
+  --accent-amber-light: #fbbf24;
+  --accent-pink: #ec4899;
+  --accent-pink-light: #f472b6;
+  --accent-red: #ef4444;
+  --accent-red-light: #f87171;
+
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+  --gradient-accent: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+  --gradient-warm: linear-gradient(135deg, var(--accent-amber), var(--accent-pink));
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --shadow-glow-blue: 0 0 20px rgba(59, 130, 246, 0.4);
+  --shadow-glow-purple: 0 0 20px rgba(139, 92, 246, 0.4);
+  --shadow-glow-cyan: 0 0 20px rgba(6, 182, 212, 0.4);
+
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  /* Border Radius */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.2s ease;
+  --transition-slow: 0.3s ease;
 }
 
+/* ==========================================================================
+   Base Styles
+   ========================================================================== */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 body {
-  margin: 0;
-  min-width: 320px;
+  font-family: var(--font-sans);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.5;
   min-height: 100vh;
 }
 
@@ -29,4 +109,548 @@ body {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
+}
+
+/* ==========================================================================
+   Scrollbar Styling
+   ========================================================================== */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--bg-elevated);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* ==========================================================================
+   Glassmorphism Utilities
+   ========================================================================== */
+.glass {
+  background: var(--bg-glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-subtle);
+}
+
+.glass-light {
+  background: var(--bg-glass-light);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--border-subtle);
+}
+
+/* ==========================================================================
+   Button Styles
+   ========================================================================== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--bg-primary), 0 0 0 4px var(--accent-blue);
+}
+
+.btn-primary {
+  background: var(--gradient-primary);
+  color: white;
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md), var(--shadow-glow-blue);
+}
+
+.btn-secondary {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  border: 1px solid var(--border-default);
+}
+
+.btn-secondary:hover {
+  background: var(--bg-glass-light);
+  border-color: var(--border-strong);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.btn-ghost:hover {
+  background: var(--bg-glass-light);
+  color: var(--text-primary);
+}
+
+.btn-danger {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--accent-red-light);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.btn-danger:hover {
+  background: rgba(239, 68, 68, 0.25);
+  border-color: var(--accent-red);
+}
+
+.btn-icon {
+  padding: var(--space-2);
+  width: 36px;
+  height: 36px;
+}
+
+/* ==========================================================================
+   Input Styles
+   ========================================================================== */
+.input {
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  color: var(--text-primary);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.input::placeholder {
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   Card Styles
+   ========================================================================== */
+.card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  transition: all var(--transition-normal);
+}
+
+.card:hover {
+  border-color: var(--border-default);
+  box-shadow: var(--shadow-md);
+}
+
+.card-interactive:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent-blue);
+  box-shadow: var(--shadow-lg), var(--shadow-glow-blue);
+}
+
+/* ==========================================================================
+   Panel Styles (Sidebars)
+   ========================================================================== */
+.panel {
+  background: var(--bg-secondary);
+  border-color: var(--border-subtle);
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.panel-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.panel-title svg {
+  color: var(--text-muted);
+}
+
+.panel-content {
+  padding: var(--space-4);
+}
+
+/* ==========================================================================
+   Badge Styles
+   ========================================================================== */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-1) var(--space-2);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-radius: var(--radius-full);
+}
+
+.badge-blue {
+  background: rgba(59, 130, 246, 0.2);
+  color: var(--accent-blue-light);
+}
+
+.badge-purple {
+  background: rgba(139, 92, 246, 0.2);
+  color: var(--accent-purple-light);
+}
+
+.badge-emerald {
+  background: rgba(16, 185, 129, 0.2);
+  color: var(--accent-emerald-light);
+}
+
+.badge-amber {
+  background: rgba(245, 158, 11, 0.2);
+  color: var(--accent-amber-light);
+}
+
+.badge-red {
+  background: rgba(239, 68, 68, 0.2);
+  color: var(--accent-red-light);
+}
+
+/* ==========================================================================
+   Animation Keyframes
+   ========================================================================== */
+@keyframes pulse-glow {
+
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+  }
+
+  50% {
+    box-shadow: 0 0 0 8px rgba(59, 130, 246, 0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in var(--transition-normal);
+}
+
+.animate-slide-up {
+  animation: slide-up var(--transition-slow);
+}
+
+.animate-scale-in {
+  animation: scale-in var(--transition-normal);
+}
+
+/* ==========================================================================
+   Range Slider
+   ========================================================================== */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  background: var(--bg-elevated);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  background: var(--accent-blue);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: var(--shadow-glow-blue);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  background: var(--accent-blue);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   Tooltip
+   ========================================================================== */
+[data-tooltip] {
+  position: relative;
+}
+
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-4px);
+  padding: var(--space-1) var(--space-2);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-primary);
+  background: var(--bg-elevated);
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: all var(--transition-fast);
+}
+
+[data-tooltip]:hover::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-8px);
+}
+
+/* ==========================================================================
+   Kbd (Keyboard) Styling
+   ========================================================================== */
+kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  padding: 2px 6px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 1px 0 var(--border-strong);
+}
+
+/* ==========================================================================
+   Empty State
+   ========================================================================== */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-8);
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.empty-state svg {
+  width: 48px;
+  height: 48px;
+  margin-bottom: var(--space-4);
+  opacity: 0.5;
+}
+
+.empty-state-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-2);
+}
+
+.empty-state-description {
+  font-size: 13px;
+  max-width: 280px;
+}
+
+/* ==========================================================================
+   Config Form Styles (Node Inspector, etc.)
+   ========================================================================== */
+.config-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.config-form-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--space-1);
+}
+
+.config-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.config-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.config-label .required {
+  color: var(--accent-red);
+  margin-left: 2px;
+}
+
+.config-input {
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: 13px;
+  transition: all var(--transition-fast);
+}
+
+.config-input:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.config-input::placeholder {
+  color: var(--text-muted);
+}
+
+.config-input.mono {
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.config-textarea {
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: 13px;
+  resize: vertical;
+  min-height: 60px;
+  transition: all var(--transition-fast);
+}
+
+.config-textarea:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.config-textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.config-textarea.mono {
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.config-select {
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.config-select:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.config-select option {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.config-hint {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.config-hint code {
+  background: var(--bg-elevated);
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-secondary);
+}
+
+.config-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-8);
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-muted);
 }

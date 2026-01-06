@@ -27,43 +27,184 @@ export function StateFieldItem({ field, typeColor, onEdit }: StateFieldItemProps
     }
   };
 
+  // Parse typeColor to extract bg and text colors
+  const [bgColor, textColor] = typeColor.split(' ');
+
   return (
-    <div className="group bg-gray-50 border border-gray-200 rounded-lg p-3 hover:bg-gray-100 transition-colors cursor-pointer">
-      <div className="flex items-start justify-between gap-2">
+    <div className="state-field-item" onClick={onEdit}>
+      <style>{`
+        .state-field-item {
+          background: var(--bg-primary);
+          border: 1px solid var(--border-subtle);
+          border-radius: var(--radius-md);
+          padding: var(--space-3);
+          cursor: pointer;
+          transition: all var(--transition-fast);
+        }
+
+        .state-field-item:hover {
+          border-color: var(--border-default);
+          background: var(--bg-elevated);
+        }
+
+        .state-field-item:hover .field-actions {
+          opacity: 1;
+        }
+
+        .field-header {
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          gap: var(--space-2);
+        }
+
+        .field-info {
+          flex: 1;
+          min-width: 0;
+        }
+
+        .field-key-row {
+          display: flex;
+          align-items: center;
+          gap: var(--space-2);
+          margin-bottom: var(--space-1);
+        }
+
+        .field-key {
+          font-family: var(--font-mono);
+          font-size: 13px;
+          font-weight: 500;
+          color: var(--text-primary);
+        }
+
+        .required-icon {
+          color: var(--accent-red);
+          flex-shrink: 0;
+        }
+
+        .type-badge {
+          padding: 2px 8px;
+          border-radius: var(--radius-full);
+          font-size: 10px;
+          font-weight: 600;
+          text-transform: uppercase;
+          flex-shrink: 0;
+        }
+
+        .field-default {
+          font-size: 11px;
+          color: var(--text-muted);
+          margin-bottom: var(--space-1);
+        }
+
+        .field-default code {
+          background: var(--bg-elevated);
+          padding: 1px 4px;
+          border-radius: 3px;
+          font-family: var(--font-mono);
+          color: var(--text-secondary);
+        }
+
+        .field-description {
+          font-size: 11px;
+          color: var(--text-muted);
+          line-height: 1.4;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+
+        .enum-values {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 4px;
+          margin-top: var(--space-2);
+        }
+
+        .enum-value {
+          font-size: 10px;
+          padding: 2px 6px;
+          background: rgba(236, 72, 153, 0.15);
+          color: #f472b6;
+          border-radius: var(--radius-sm);
+          border: 1px solid rgba(236, 72, 153, 0.3);
+        }
+
+        .field-actions {
+          display: flex;
+          align-items: center;
+          gap: var(--space-1);
+          opacity: 0;
+          transition: opacity var(--transition-fast);
+        }
+
+        .field-action-btn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 24px;
+          height: 24px;
+          background: transparent;
+          border: none;
+          border-radius: var(--radius-sm);
+          color: var(--text-muted);
+          cursor: pointer;
+          transition: all var(--transition-fast);
+        }
+
+        .field-action-btn:hover {
+          background: var(--bg-glass-light);
+          color: var(--text-primary);
+        }
+
+        .field-action-btn.edit:hover {
+          color: var(--accent-blue);
+          background: rgba(59, 130, 246, 0.15);
+        }
+
+        .field-action-btn.delete:hover {
+          color: var(--accent-red-light);
+          background: rgba(239, 68, 68, 0.15);
+        }
+      `}</style>
+
+      <div className="field-header">
         {/* Field Info */}
-        <div className="flex-1 min-w-0" onClick={onEdit}>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="font-mono text-sm font-medium text-gray-900 truncate">
-              {field.key}
-            </span>
+        <div className="field-info">
+          <div className="field-key-row">
+            <span className="field-key">{field.key}</span>
             {field.required && (
-              <span title="Required">
-                <Asterisk className="w-3 h-3 text-red-500 shrink-0" />
+              <span className="required-icon" title="Required">
+                <Asterisk size={12} />
               </span>
             )}
-            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${typeColor} shrink-0`}>
+            <span
+              className="type-badge"
+              style={{
+                background: bgColor,
+                color: textColor
+              }}
+            >
               {field.type}
             </span>
           </div>
 
           {/* Default value */}
-          <div className="text-xs text-gray-500 mb-1">
-            Default: <code className="bg-gray-200 px-1 rounded">{formatDefaultValue(field.default, field.type)}</code>
+          <div className="field-default">
+            Default: <code>{formatDefaultValue(field.default, field.type)}</code>
           </div>
 
           {/* Description */}
           {field.description && (
-            <p className="text-xs text-gray-600 line-clamp-2">{field.description}</p>
+            <p className="field-description">{field.description}</p>
           )}
 
           {/* Enum values */}
           {field.type === 'enum' && field.enumValues && field.enumValues.length > 0 && (
-            <div className="mt-1 flex flex-wrap gap-1">
+            <div className="enum-values">
               {field.enumValues.map((val) => (
-                <span
-                  key={val}
-                  className="text-xs bg-pink-50 text-pink-700 px-1.5 py-0.5 rounded border border-pink-200"
-                >
+                <span key={val} className="enum-value">
                   {val}
                 </span>
               ))}
@@ -72,20 +213,20 @@ export function StateFieldItem({ field, typeColor, onEdit }: StateFieldItemProps
         </div>
 
         {/* Actions */}
-        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="field-actions">
           <button
             onClick={onEdit}
-            className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+            className="field-action-btn edit"
             title="Edit field"
           >
-            <Edit className="w-3.5 h-3.5" />
+            <Edit size={14} />
           </button>
           <button
             onClick={handleDelete}
-            className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+            className="field-action-btn delete"
             title="Delete field"
           >
-            <Trash2 className="w-3.5 h-3.5" />
+            <Trash2 size={14} />
           </button>
         </div>
       </div>

@@ -2,15 +2,24 @@ import { useCallback } from 'react';
 import { useReactFlow } from 'reactflow';
 import { NodeType } from '@/models/graph';
 import { useGraphStore } from '@/store/graphStore';
+import {
+  Circle,
+  MessageSquare,
+  Wrench,
+  GitBranch,
+  Layers,
+  RefreshCw,
+  Square
+} from 'lucide-react';
 
-const nodeTypes: { type: NodeType; label: string; description: string }[] = [
-  { type: 'Start', label: 'Start', description: 'Entry point' },
-  { type: 'LLM', label: 'LLM', description: 'Language model' },
-  { type: 'Tool', label: 'Tool', description: 'Function call' },
-  { type: 'Router', label: 'Router', description: 'Conditional branch' },
-  { type: 'Reducer', label: 'Reducer', description: 'Merge state' },
-  { type: 'LoopGuard', label: 'Loop', description: 'Loop condition' },
-  { type: 'End', label: 'End', description: 'Terminal state' },
+const nodeTypes: { type: NodeType; label: string; description: string; icon: React.ReactNode; color: string }[] = [
+  { type: 'Start', label: 'Start', description: 'Entry point', icon: <Circle size={16} />, color: 'var(--accent-blue)' },
+  { type: 'LLM', label: 'LLM', description: 'Language model', icon: <MessageSquare size={16} />, color: 'var(--accent-emerald)' },
+  { type: 'Tool', label: 'Tool', description: 'Function call', icon: <Wrench size={16} />, color: 'var(--accent-amber)' },
+  { type: 'Router', label: 'Router', description: 'Conditional branch', icon: <GitBranch size={16} />, color: 'var(--accent-purple)' },
+  { type: 'Reducer', label: 'Reducer', description: 'Merge state', icon: <Layers size={16} />, color: 'var(--accent-pink)' },
+  { type: 'LoopGuard', label: 'Loop', description: 'Loop condition', icon: <RefreshCw size={16} />, color: 'var(--accent-cyan)' },
+  { type: 'End', label: 'End', description: 'Terminal state', icon: <Square size={16} />, color: 'var(--accent-red)' },
 ];
 
 export function NodePalette() {
@@ -54,66 +63,150 @@ export function NodePalette() {
 
   return (
     <div
-      style={{
-        width: 200,
-        background: '#f8fafc',
-        borderRight: '1px solid #e2e8f0',
-        padding: '16px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '8px',
-        overflowY: 'auto',
-      }}
+      className="node-palette"
       onDragOver={onDragOver}
       onDrop={onDrop}
     >
-      <h3
-        style={{
-          margin: '0 0 8px 0',
-          fontSize: '14px',
-          fontWeight: '600',
-          color: '#1e293b',
-        }}
-      >
-        Node Palette
-      </h3>
+      <style>{`
+        .node-palette {
+          width: 200px;
+          background: var(--bg-secondary);
+          border-right: 1px solid var(--border-subtle);
+          padding: var(--space-4);
+          display: flex;
+          flex-direction: column;
+          gap: var(--space-2);
+          overflow-y: auto;
+        }
 
-      {nodeTypes.map(({ type, label, description }) => (
+        .palette-header {
+          display: flex;
+          align-items: center;
+          gap: var(--space-2);
+          margin-bottom: var(--space-2);
+          padding-bottom: var(--space-3);
+          border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .palette-title {
+          font-size: 13px;
+          font-weight: 600;
+          color: var(--text-primary);
+          background: var(--gradient-primary);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        }
+
+        .palette-item {
+          display: flex;
+          align-items: center;
+          gap: var(--space-3);
+          padding: var(--space-3);
+          background: var(--bg-primary);
+          border: 1px solid var(--border-subtle);
+          border-radius: var(--radius-md);
+          cursor: grab;
+          transition: all var(--transition-normal);
+          position: relative;
+          overflow: hidden;
+        }
+
+        .palette-item::before {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 0;
+          bottom: 0;
+          width: 3px;
+          background: var(--item-color);
+          opacity: 0.6;
+          transition: all var(--transition-normal);
+        }
+
+        .palette-item:hover {
+          border-color: var(--item-color);
+          transform: translateX(4px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .palette-item:hover::before {
+          opacity: 1;
+          width: 4px;
+        }
+
+        .palette-item:active {
+          cursor: grabbing;
+          transform: translateX(4px) scale(0.98);
+        }
+
+        .palette-icon {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 32px;
+          height: 32px;
+          border-radius: var(--radius-sm);
+          background: rgba(255, 255, 255, 0.05);
+          color: var(--item-color);
+          flex-shrink: 0;
+        }
+
+        .palette-info {
+          flex: 1;
+          min-width: 0;
+        }
+
+        .palette-label {
+          font-size: 13px;
+          font-weight: 500;
+          color: var(--text-primary);
+        }
+
+        .palette-desc {
+          font-size: 11px;
+          color: var(--text-muted);
+        }
+
+        .palette-hint {
+          margin-top: var(--space-3);
+          padding-top: var(--space-3);
+          border-top: 1px solid var(--border-subtle);
+          font-size: 11px;
+          color: var(--text-muted);
+          text-align: center;
+        }
+
+        .palette-hint kbd {
+          margin: 0 2px;
+        }
+      `}</style>
+
+      <div className="palette-header">
+        <span className="palette-title">Node Palette</span>
+      </div>
+
+      {nodeTypes.map(({ type, label, description, icon, color }) => (
         <div
           key={type}
           draggable
           onDragStart={(e) => onDragStart(e, type)}
           onDoubleClick={() => onDoubleClick(type)}
-          style={{
-            padding: '12px',
-            background: 'white',
-            border: '1px solid #e2e8f0',
-            borderRadius: '6px',
-            cursor: 'grab',
-            transition: 'all 0.2s',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.borderColor = '#3b82f6';
-            e.currentTarget.style.boxShadow = '0 2px 8px rgba(59, 130, 246, 0.1)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.borderColor = '#e2e8f0';
-            e.currentTarget.style.boxShadow = 'none';
-          }}
+          className="palette-item"
+          style={{ '--item-color': color } as React.CSSProperties}
         >
-          <div style={{ fontWeight: '500', fontSize: '13px', color: '#1e293b' }}>{label}</div>
-          <div style={{ fontSize: '11px', color: '#64748b' }}>{description}</div>
+          <div className="palette-icon">
+            {icon}
+          </div>
+          <div className="palette-info">
+            <div className="palette-label">{label}</div>
+            <div className="palette-desc">{description}</div>
+          </div>
         </div>
       ))}
 
-      <div
-        style={{
-          marginTop: '8px',
-          fontSize: '11px',
-          color: '#64748b',
-        }}
-      >
-        Drag to canvas or double-click
+      <div className="palette-hint">
+        Drag to canvas or <kbd>dbl-click</kbd>
       </div>
     </div>
   );

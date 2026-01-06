@@ -17,16 +17,65 @@ function App() {
   const hasSimulation = trace.steps.length > 0;
 
   return (
-    <div className="w-screen h-screen overflow-hidden grid grid-cols-[280px_1fr_320px] bg-gray-50">
+    <div className="app-layout">
+      <style>{`
+        .app-layout {
+          display: grid;
+          grid-template-columns: 280px 1fr 320px;
+          width: 100vw;
+          height: 100vh;
+          overflow: hidden;
+          background-color: var(--bg-primary);
+        }
+
+        .center-panel {
+          position: relative;
+          display: flex;
+          flex-direction: column;
+          min-width: 0;
+          overflow: hidden;
+        }
+
+        .sim-controls-wrapper {
+          position: absolute;
+          top: 16px;
+          left: 50%;
+          transform: translateX(-50%);
+          z-index: 20;
+        }
+
+        .right-panel {
+          position: relative;
+          overflow: hidden;
+        }
+
+        .right-panel-empty {
+          width: 100%;
+          height: 100%;
+          background: var(--bg-secondary);
+          border-left: 1px solid var(--border-subtle);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .right-panel-empty-content {
+          text-align: center;
+          color: var(--text-muted);
+          font-size: 13px;
+          padding: 32px;
+        }
+      `}</style>
+
       <ReactFlowProvider>
         {/* Left Panel - State Schema */}
         <StateSchemaPanel />
 
         {/* Center - Canvas */}
-        <div className="relative flex flex-col">
+        <div className="center-panel">
           {/* Simulation Controls (shown when simulation exists) */}
           {hasSimulation && (
-            <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20">
+            <div className="sim-controls-wrapper">
               <StepControls />
             </div>
           )}
@@ -40,14 +89,14 @@ function App() {
         </div>
 
         {/* Right Panel - Inspector */}
-        <div className="relative">
+        <div className="right-panel">
           {selectedNodeId && <NodeInspector />}
           {selectedEdgeId && <EdgeInspector />}
 
           {/* Empty state when nothing selected */}
           {!selectedNodeId && !selectedEdgeId && (
-            <div className="absolute right-0 top-0 bottom-0 w-80 bg-white border-l border-gray-200 flex items-center justify-center z-10">
-              <div className="text-center text-gray-400 text-sm p-8">
+            <div className="right-panel-empty">
+              <div className="right-panel-empty-content">
                 <p>Select a node or edge to view its properties</p>
               </div>
             </div>

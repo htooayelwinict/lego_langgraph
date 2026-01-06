@@ -9,45 +9,39 @@ export function LLMConfig({ config, onChange }: LLMConfigProps) {
   };
 
   return (
-    <div className="space-y-4">
-      <h3 className="text-sm font-medium text-gray-900">LLM Configuration</h3>
+    <div className="config-form">
+      <h3 className="config-form-title">LLM Configuration</h3>
 
       {/* Prompt Template */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Prompt Template
-        </label>
+      <div className="config-field">
+        <label className="config-label">Prompt Template</label>
         <textarea
           value={(config.prompt as string) || ''}
           onChange={(e) => handleChange('prompt', e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm font-mono"
+          className="config-textarea mono"
           placeholder="You are a helpful assistant. Answer: {input}"
           rows={6}
         />
-        <p className="text-xs text-gray-500 mt-1">
-          Use {'{state_field}'} for state variable interpolation
+        <p className="config-hint">
+          Use <code>{'{state_field}'}</code> for state variable interpolation
         </p>
       </div>
 
       {/* Model Name */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Model Name
-        </label>
+      <div className="config-field">
+        <label className="config-label">Model Name</label>
         <input
           type="text"
           value={(config.modelName as string) || ''}
           onChange={(e) => handleChange('modelName', e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+          className="config-input"
           placeholder="gpt-4"
         />
       </div>
 
       {/* Temperature */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Temperature
-        </label>
+      <div className="config-field">
+        <label className="config-label">Temperature</label>
         <input
           type="number"
           step="0.1"
@@ -55,11 +49,9 @@ export function LLMConfig({ config, onChange }: LLMConfigProps) {
           max="2"
           value={(config.temperature as number) ?? 0.7}
           onChange={(e) => handleChange('temperature', parseFloat(e.target.value))}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+          className="config-input"
         />
-        <p className="text-xs text-gray-500 mt-1">
-          0 = deterministic, 2 = creative
-        </p>
+        <p className="config-hint">0 = deterministic, 2 = creative</p>
       </div>
     </div>
   );

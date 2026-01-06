@@ -32,7 +32,7 @@ export function NodeConfigForm({ nodeType, config, onChange }: NodeConfigFormPro
     case 'End':
     default:
       return (
-        <div className="text-sm text-gray-500 text-center py-8">
+        <div className="config-empty">
           No configuration options for this node type.
         </div>
       );

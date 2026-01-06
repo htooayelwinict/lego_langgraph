@@ -56,20 +56,71 @@ export function Toolbar() {
   }, [clearGraph]);
 
   return (
-    <div
-      style={{
-        position: 'absolute',
-        top: '16px',
-        right: '16px',
-        zIndex: 10,
-        display: 'flex',
-        gap: '8px',
-        background: 'white',
-        padding: '8px',
-        borderRadius: '8px',
-        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-      }}
-    >
+    <div className="toolbar-container">
+      <style>{`
+        .toolbar-container {
+          position: absolute;
+          top: var(--space-4);
+          right: var(--space-4);
+          z-index: 10;
+          display: flex;
+          gap: var(--space-2);
+          padding: var(--space-2);
+          background: var(--bg-glass);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          border: 1px solid var(--border-subtle);
+          border-radius: var(--radius-lg);
+          box-shadow: var(--shadow-lg);
+        }
+
+        .toolbar-btn {
+          display: flex;
+          align-items: center;
+          gap: var(--space-2);
+          padding: var(--space-2) var(--space-3);
+          background: transparent;
+          border: 1px solid transparent;
+          border-radius: var(--radius-md);
+          cursor: pointer;
+          font-size: 12px;
+          font-weight: 500;
+          color: var(--text-secondary);
+          transition: all var(--transition-fast);
+        }
+
+        .toolbar-btn:hover {
+          background: var(--bg-glass-light);
+          color: var(--text-primary);
+          border-color: var(--border-default);
+        }
+
+        .toolbar-btn:hover svg {
+          transform: scale(1.1);
+        }
+
+        .toolbar-btn svg {
+          width: 16px;
+          height: 16px;
+          transition: transform var(--transition-fast);
+        }
+
+        .toolbar-btn.danger {
+          color: var(--accent-red-light);
+        }
+
+        .toolbar-btn.danger:hover {
+          background: rgba(239, 68, 68, 0.15);
+          border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        .toolbar-divider {
+          width: 1px;
+          margin: var(--space-2) var(--space-1);
+          background: var(--border-default);
+        }
+      `}</style>
+
       <input
         ref={fileInputRef}
         type="file"
@@ -78,50 +129,34 @@ export function Toolbar() {
         onChange={handleFileChange}
       />
 
-      <ToolbarButton icon={<Copy size={18} />} label="Copy" onClick={handleCopy} />
-      <ToolbarButton icon={<Download size={18} />} label="Export" onClick={handleExport} />
-      <ToolbarButton icon={<Upload size={18} />} label="Import" onClick={handleImportClick} />
-      <ToolbarButton icon={<FolderOpen size={18} />} label="Templates" onClick={toggleGallery} />
+      <button className="toolbar-btn" onClick={handleCopy} title="Copy to clipboard">
+        <Copy />
+        <span>Copy</span>
+      </button>
+      <button className="toolbar-btn" onClick={handleExport} title="Export as JSON">
+        <Download />
+        <span>Export</span>
+      </button>
+      <button className="toolbar-btn" onClick={handleImportClick} title="Import JSON">
+        <Upload />
+        <span>Import</span>
+      </button>
+
+      <div className="toolbar-divider" />
+
+      <button className="toolbar-btn" onClick={toggleGallery} title="Template Gallery">
+        <FolderOpen />
+        <span>Templates</span>
+      </button>
+
       <LensToggle />
-      <ToolbarButton icon={<Trash2 size={18} />} label="Clear" onClick={handleClear} danger />
+
+      <div className="toolbar-divider" />
+
+      <button className="toolbar-btn danger" onClick={handleClear} title="Clear graph">
+        <Trash2 />
+        <span>Clear</span>
+      </button>
     </div>
-  );
-}
-
-interface ToolbarButtonProps {
-  icon: React.ReactNode;
-  label: string;
-  onClick: () => void;
-  danger?: boolean;
-}
-
-function ToolbarButton({ icon, label, onClick, danger = false }: ToolbarButtonProps) {
-  return (
-    <button
-      onClick={onClick}
-      title={label}
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '6px',
-        padding: '8px 12px',
-        background: danger ? '#fee2e2' : '#f8fafc',
-        border: `1px solid ${danger ? '#ef4444' : '#e2e8f0'}`,
-      borderRadius: '6px',
-      cursor: 'pointer',
-      fontSize: '13px',
-      color: danger ? '#dc2626' : '#475569',
-      transition: 'all 0.2s',
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.background = danger ? '#fecaca' : '#e2e8f0';
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.background = danger ? '#fee2e2' : '#f8fafc';
-      }}
-    >
-      {icon}
-      <span>{label}</span>
-    </button>
   );
 }

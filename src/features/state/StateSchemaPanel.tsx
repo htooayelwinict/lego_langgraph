@@ -2,17 +2,17 @@ import { useRef } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useStateStore } from '@/store/stateStore';
 import { useUiStore } from '@/store/uiStore';
-import { Plus, Settings } from 'lucide-react';
+import { Plus, Database, ChevronLeft, ChevronRight } from 'lucide-react';
 import { StateFieldItem } from './StateFieldItem';
 import { FieldType } from '@/models/state';
 
-const FIELD_TYPE_COLORS: Record<FieldType, string> = {
-  string: 'bg-blue-100 text-blue-700',
-  number: 'bg-green-100 text-green-700',
-  boolean: 'bg-purple-100 text-purple-700',
-  array: 'bg-orange-100 text-orange-700',
-  object: 'bg-gray-100 text-gray-700',
-  enum: 'bg-pink-100 text-pink-700',
+const FIELD_TYPE_COLORS: Record<FieldType, { bg: string; text: string }> = {
+  string: { bg: 'rgba(59, 130, 246, 0.2)', text: '#60a5fa' },
+  number: { bg: 'rgba(16, 185, 129, 0.2)', text: '#34d399' },
+  boolean: { bg: 'rgba(139, 92, 246, 0.2)', text: '#a78bfa' },
+  array: { bg: 'rgba(245, 158, 11, 0.2)', text: '#fbbf24' },
+  object: { bg: 'rgba(148, 163, 184, 0.2)', text: '#94a3b8' },
+  enum: { bg: 'rgba(236, 72, 153, 0.2)', text: '#f472b6' },
 };
 
 export function StateSchemaPanel() {
@@ -23,44 +23,256 @@ export function StateSchemaPanel() {
   const rowVirtualizer = useVirtualizer({
     count: schema.fields.length,
     getScrollElement: () => parentRef.current,
-    estimateSize: () => 72,
-    overscan: 6,
+    estimateSize: () => 88,
+    overscan: 5,
   });
 
   if (!showStatePanel) {
     return (
-      <button
-        onClick={toggleStatePanel}
-        className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white border border-gray-200 rounded-r-lg p-2 shadow-md hover:bg-gray-50"
-        title="Show State Panel"
-      >
-        <Settings className="w-4 h-4" />
-      </button>
+      <div className="state-panel-collapsed">
+        <style>{`
+          .state-panel-collapsed {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-subtle);
+          }
+          .panel-toggle-btn {
+            position: absolute;
+            right: -16px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 15;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 64px;
+            background: var(--bg-glass);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-subtle);
+            border-left: none;
+            border-radius: 0 var(--radius-md) var(--radius-md) 0;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+          }
+          .panel-toggle-btn:hover {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+          }
+          .collapsed-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            gap: var(--space-3);
+            color: var(--text-muted);
+          }
+          .collapsed-content svg {
+            opacity: 0.4;
+          }
+          .collapsed-label {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            font-size: 12px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+          }
+        `}</style>
+        <div className="collapsed-content">
+          <Database size={20} />
+          <span className="collapsed-label">State Schema</span>
+        </div>
+        <button
+          onClick={toggleStatePanel}
+          className="panel-toggle-btn"
+          title="Show State Panel"
+        >
+          <ChevronRight size={16} />
+        </button>
+      </div>
     );
   }
 
   return (
-    <div className="absolute left-0 top-0 bottom-0 w-80 bg-white border-r border-gray-200 flex flex-col z-10 shadow-sm">
+    <div className="state-panel">
+      <style>{`
+        .state-panel {
+          position: relative;
+          width: 100%;
+          height: 100%;
+          background: var(--bg-secondary);
+          border-right: 1px solid var(--border-subtle);
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+        }
+
+        .state-panel-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: var(--space-4);
+          border-bottom: 1px solid var(--border-subtle);
+          flex-shrink: 0;
+        }
+
+        .state-panel-title {
+          display: flex;
+          align-items: center;
+          gap: var(--space-2);
+          font-size: 14px;
+          font-weight: 600;
+          color: var(--text-primary);
+        }
+
+        .state-panel-title svg {
+          color: var(--accent-purple);
+        }
+
+        .state-panel-close {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 28px;
+          height: 28px;
+          background: transparent;
+          border: none;
+          border-radius: var(--radius-sm);
+          color: var(--text-muted);
+          cursor: pointer;
+          transition: all var(--transition-fast);
+        }
+
+        .state-panel-close:hover {
+          background: var(--bg-elevated);
+          color: var(--text-primary);
+        }
+
+        .error-banner {
+          margin: var(--space-4);
+          margin-bottom: 0;
+          padding: var(--space-3);
+          background: rgba(239, 68, 68, 0.1);
+          border: 1px solid rgba(239, 68, 68, 0.3);
+          border-radius: var(--radius-md);
+          flex-shrink: 0;
+        }
+
+        .error-banner-title {
+          font-size: 12px;
+          font-weight: 600;
+          color: var(--accent-red-light);
+          margin-bottom: var(--space-2);
+        }
+
+        .error-banner-list {
+          list-style: none;
+          font-size: 11px;
+          color: var(--accent-red-light);
+          opacity: 0.9;
+        }
+
+        .error-banner-list li {
+          margin-bottom: var(--space-1);
+        }
+
+        .field-list {
+          flex: 1;
+          overflow-y: auto;
+          overflow-x: hidden;
+          padding: var(--space-4);
+          min-height: 0;
+        }
+
+        .field-list-container {
+          position: relative;
+          width: 100%;
+        }
+
+        .field-list-item {
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 100%;
+          padding-bottom: var(--space-2);
+        }
+
+        .empty-fields {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: var(--space-8);
+          text-align: center;
+          color: var(--text-muted);
+        }
+
+        .empty-fields svg {
+          width: 40px;
+          height: 40px;
+          margin-bottom: var(--space-3);
+          opacity: 0.4;
+        }
+
+        .empty-fields p {
+          font-size: 13px;
+          line-height: 1.5;
+        }
+
+        .add-field-section {
+          padding: var(--space-4);
+          border-top: 1px solid var(--border-subtle);
+          flex-shrink: 0;
+        }
+
+        .add-field-btn {
+          width: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: var(--space-2);
+          padding: var(--space-3);
+          background: var(--gradient-primary);
+          border: none;
+          border-radius: var(--radius-md);
+          color: white;
+          font-size: 13px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all var(--transition-fast);
+        }
+
+        .add-field-btn:hover {
+          transform: translateY(-1px);
+          box-shadow: var(--shadow-md), var(--shadow-glow-blue);
+        }
+      `}</style>
+
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200">
-        <div className="flex items-center gap-2">
-          <Settings className="w-5 h-5 text-gray-600" />
-          <h2 className="font-semibold text-gray-900">State Schema</h2>
+      <div className="state-panel-header">
+        <div className="state-panel-title">
+          <Database size={18} />
+          <span>State Schema</span>
         </div>
         <button
           onClick={toggleStatePanel}
-          className="text-gray-400 hover:text-gray-600 p-1 rounded hover:bg-gray-100"
+          className="state-panel-close"
           title="Hide panel"
         >
-          <Settings className="w-4 h-4 rotate-90" />
+          <ChevronLeft size={16} />
         </button>
       </div>
 
       {/* Error Banner */}
       {errors.length > 0 && (
-        <div className="mx-4 mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-sm font-medium text-red-800 mb-2">Validation Errors</p>
-          <ul className="text-xs text-red-700 space-y-1">
+        <div className="error-banner">
+          <p className="error-banner-title">Validation Errors</p>
+          <ul className="error-banner-list">
             {errors.map((error, i) => (
               <li key={i}>• {error}</li>
             ))}
@@ -69,25 +281,27 @@ export function StateSchemaPanel() {
       )}
 
       {/* Field List */}
-      <div ref={parentRef} className="flex-1 overflow-y-auto p-4">
+      <div ref={parentRef} className="field-list">
         {schema.fields.length === 0 ? (
-          <div className="text-center text-gray-400 text-sm py-8">
-            No fields defined yet. Add your first state field.
+          <div className="empty-fields">
+            <Database />
+            <p>No fields defined yet.<br />Add your first state field.</p>
           </div>
         ) : (
-          <div className="relative w-full" style={{ height: `${rowVirtualizer.getTotalSize()}px` }}>
+          <div className="field-list-container" style={{ height: `${rowVirtualizer.getTotalSize()}px` }}>
             {rowVirtualizer.getVirtualItems().map((virtualRow) => {
               const field = schema.fields[virtualRow.index];
               if (!field) return null;
+              const typeColor = FIELD_TYPE_COLORS[field.type];
               return (
                 <div
                   key={field.key}
-                  className="absolute left-0 top-0 w-full pb-2"
+                  className="field-list-item"
                   style={{ transform: `translateY(${virtualRow.start}px)` }}
                 >
                   <StateFieldItem
                     field={field}
-                    typeColor={FIELD_TYPE_COLORS[field.type]}
+                    typeColor={`${typeColor.bg} ${typeColor.text}`}
                     onEdit={() => openModal('state-field-editor', field.key)}
                   />
                 </div>
@@ -98,12 +312,12 @@ export function StateSchemaPanel() {
       </div>
 
       {/* Add Field Button */}
-      <div className="p-4 border-t border-gray-200">
+      <div className="add-field-section">
         <button
           onClick={() => openModal('state-field-editor')}
-          className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          className="add-field-btn"
         >
-          <Plus className="w-4 h-4" />
+          <Plus size={16} />
           Add Field
         </button>
       </div>

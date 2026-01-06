@@ -1,14 +1,16 @@
 import { useEffect, useState, useMemo } from 'react';
-import { X, Sparkles, ArrowRight } from 'lucide-react';
+import { X, Sparkles, ArrowRight, Zap, Layers, Eye } from 'lucide-react';
 
 interface Step {
   title: string;
   content: React.ReactNode;
+  icon: React.ReactNode;
 }
 
 const getSteps = (): Step[] => [
   {
     title: 'Welcome to LangGraph Visual Modeler',
+    icon: <Zap size={24} />,
     content: (
       <>
         <p>
@@ -34,6 +36,7 @@ const getSteps = (): Step[] => [
   },
   {
     title: 'Build Your Graph',
+    icon: <Layers size={24} />,
     content: (
       <>
         <p>
@@ -52,6 +55,7 @@ const getSteps = (): Step[] => [
   },
   {
     title: 'Simulate & Understand',
+    icon: <Eye size={24} />,
     content: (
       <>
         <p>
@@ -70,6 +74,7 @@ const getSteps = (): Step[] => [
   },
   {
     title: 'Start Building',
+    icon: <Sparkles size={24} />,
     content: (
       <>
         <p>
@@ -128,6 +133,7 @@ export function OnboardingModal() {
             ))}
           </div>
 
+          <div className="step-icon">{currentStep.icon}</div>
           <h2>{currentStep.title}</h2>
           {currentStep.content}
 
@@ -155,131 +161,202 @@ export function OnboardingModal() {
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 10000;
+            animation: fade-in 0.3s ease;
           }
+
+          @keyframes fade-in {
+            from { opacity: 0; }
+            to { opacity: 1; }
+          }
+
           .onboarding-modal {
+            position: relative;
             width: 90%;
-            max-width: 500px;
-            background: white;
-            border-radius: 16px;
-            padding: 32px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            max-width: 520px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-xl);
+            padding: 40px;
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+            animation: scale-in 0.3s ease;
           }
+
+          @keyframes scale-in {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+          }
+
           .onboarding-close {
             position: absolute;
             top: 16px;
             right: 16px;
             background: none;
             border: none;
-            color: #94a3b8;
+            color: var(--text-muted);
             cursor: pointer;
-            padding: 4px;
+            padding: 8px;
+            border-radius: var(--radius-sm);
+            transition: all var(--transition-fast);
           }
+
           .onboarding-close:hover {
-            color: #475569;
+            color: var(--text-primary);
+            background: var(--bg-elevated);
           }
+
           .onboarding-progress {
             display: flex;
             gap: 8px;
-            margin-bottom: 24px;
+            margin-bottom: 32px;
           }
+
           .progress-dot {
             flex: 1;
             height: 4px;
-            background: #e2e8f0;
-            border-radius: 2px;
+            background: var(--bg-elevated);
+            border-radius: var(--radius-full);
             transition: all 0.3s ease;
           }
+
           .progress-dot.active {
-            background: #3b82f6;
+            background: var(--gradient-primary);
+            box-shadow: 0 0 12px var(--accent-blue);
           }
+
           .progress-dot.completed {
-            background: #22c55e;
+            background: var(--accent-emerald);
           }
+
+          .step-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 56px;
+            height: 56px;
+            background: var(--gradient-primary);
+            border-radius: var(--radius-lg);
+            color: white;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-glow-blue);
+          }
+
           .onboarding-content h2 {
             margin: 0 0 16px 0;
-            font-size: 22px;
+            font-size: 24px;
             font-weight: 600;
-            color: #1e293b;
+            color: var(--text-primary);
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
           }
+
           .onboarding-content p {
-            color: #64748b;
-            line-height: 1.6;
+            color: var(--text-secondary);
+            line-height: 1.7;
             margin-bottom: 16px;
           }
+
           .onboarding-content ul {
-            color: #64748b;
+            color: var(--text-secondary);
             margin: 0 0 16px 20px;
-            line-height: 1.8;
+            line-height: 1.9;
           }
+
           .onboarding-content li {
-            margin-bottom: 8px;
+            margin-bottom: 6px;
           }
+
+          .onboarding-content li strong {
+            color: var(--text-primary);
+          }
+
           .feature-list {
             display: flex;
             flex-direction: column;
             gap: 12px;
-            margin: 20px 0;
+            margin: 24px 0;
           }
+
           .feature-item {
             display: flex;
             align-items: center;
-            gap: 10px;
-            color: #475569;
+            gap: 12px;
+            color: var(--text-secondary);
             font-size: 14px;
-          }
-          .feature-item svg:first-child {
-            color: #3b82f6;
-          }
-          .hint {
-            background: #f1f5f9;
             padding: 12px;
-            border-radius: 8px;
+            background: var(--bg-primary);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-subtle);
+          }
+
+          .feature-item svg:first-child {
+            color: var(--accent-amber);
+          }
+
+          .hint {
+            background: var(--bg-primary);
+            padding: 14px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-subtle);
             font-size: 13px;
           }
+
           .hint kbd {
-            background: white;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-family: monospace;
+            background: var(--bg-elevated);
+            padding: 3px 8px;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-mono);
             font-size: 12px;
-            border: 1px solid #e2e8f0;
+            border: 1px solid var(--border-default);
           }
+
           .onboarding-actions {
             display: flex;
             gap: 12px;
             justify-content: flex-end;
-            margin-top: 24px;
+            margin-top: 32px;
           }
+
           .btn-primary, .btn-secondary {
             display: flex;
             align-items: center;
             gap: 8px;
-            padding: 10px 20px;
-            border-radius: 8px;
+            padding: 12px 24px;
+            border-radius: var(--radius-md);
             font-size: 14px;
             font-weight: 500;
             cursor: pointer;
             border: none;
-            transition: all 0.15s;
+            transition: all var(--transition-fast);
           }
+
           .btn-primary {
-            background: #3b82f6;
+            background: var(--gradient-primary);
             color: white;
+            box-shadow: var(--shadow-sm);
           }
+
           .btn-primary:hover {
-            background: #2563eb;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md), var(--shadow-glow-blue);
           }
+
           .btn-secondary {
-            background: #f1f5f9;
-            color: #475569;
+            background: var(--bg-elevated);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-default);
           }
+
           .btn-secondary:hover {
-            background: #e2e8f0;
+            background: var(--bg-glass-light);
+            color: var(--text-primary);
           }
         `}</style>
       </div>

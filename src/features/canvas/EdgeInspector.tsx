@@ -1,6 +1,6 @@
 import { useGraphStore } from '@/store/graphStore';
 import { useUiStore } from '@/store/uiStore';
-import { Settings, Trash2, Link2 } from 'lucide-react';
+import { Link2, Trash2, ChevronRight, HelpCircle } from 'lucide-react';
 
 export function EdgeInspector() {
   const { nodes, edges, selectedEdgeId, updateEdge, deleteEdge } = useGraphStore();
@@ -42,95 +42,305 @@ export function EdgeInspector() {
   };
 
   return (
-    <div className="absolute right-0 top-0 bottom-0 w-80 bg-white border-l border-gray-200 flex flex-col z-10 shadow-sm">
+    <div className="edge-inspector">
+      <style>{`
+        .edge-inspector {
+          width: 100%;
+          height: 100%;
+          background: var(--bg-secondary);
+          border-left: 1px solid var(--border-subtle);
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+        }
+
+        .inspector-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: var(--space-4);
+          border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .inspector-title {
+          display: flex;
+          align-items: center;
+          gap: var(--space-2);
+          font-size: 14px;
+          font-weight: 600;
+          color: var(--text-primary);
+        }
+
+        .inspector-title svg {
+          color: var(--accent-amber);
+        }
+
+        .inspector-actions {
+          display: flex;
+          align-items: center;
+          gap: var(--space-1);
+        }
+
+        .inspector-btn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 28px;
+          height: 28px;
+          background: transparent;
+          border: none;
+          border-radius: var(--radius-sm);
+          color: var(--text-muted);
+          cursor: pointer;
+          transition: all var(--transition-fast);
+        }
+
+        .inspector-btn:hover {
+          background: var(--bg-elevated);
+          color: var(--text-primary);
+        }
+
+        .inspector-btn.delete:hover {
+          background: rgba(239, 68, 68, 0.15);
+          color: var(--accent-red-light);
+        }
+
+        .connection-info {
+          padding: var(--space-4);
+          border-bottom: 1px solid var(--border-subtle);
+          background: var(--bg-primary);
+        }
+
+        .connection-flow {
+          display: flex;
+          align-items: center;
+          gap: var(--space-2);
+          font-size: 13px;
+        }
+
+        .connection-node {
+          font-weight: 500;
+          color: var(--text-primary);
+        }
+
+        .connection-arrow {
+          color: var(--text-muted);
+        }
+
+        .conditional-hint {
+          margin-top: var(--space-2);
+          font-size: 11px;
+          color: var(--accent-blue);
+          padding: var(--space-2);
+          background: rgba(59, 130, 246, 0.1);
+          border-radius: var(--radius-sm);
+        }
+
+        .input-section {
+          padding: var(--space-4);
+          border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .input-label {
+          display: block;
+          font-size: 12px;
+          font-weight: 500;
+          color: var(--text-muted);
+          margin-bottom: var(--space-2);
+        }
+
+        .input-field {
+          width: 100%;
+          padding: var(--space-2) var(--space-3);
+          background: var(--bg-primary);
+          border: 1px solid var(--border-default);
+          border-radius: var(--radius-md);
+          color: var(--text-primary);
+          font-size: 14px;
+          transition: all var(--transition-fast);
+        }
+
+        .input-field:focus {
+          outline: none;
+          border-color: var(--accent-blue);
+          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .input-field::placeholder {
+          color: var(--text-muted);
+        }
+
+        .input-hint {
+          font-size: 11px;
+          color: var(--text-muted);
+          margin-top: var(--space-1);
+        }
+
+        .textarea-field {
+          width: 100%;
+          padding: var(--space-2) var(--space-3);
+          background: var(--bg-primary);
+          border: 1px solid var(--border-default);
+          border-radius: var(--radius-md);
+          color: var(--text-primary);
+          font-size: 13px;
+          font-family: var(--font-mono);
+          resize: vertical;
+          transition: all var(--transition-fast);
+        }
+
+        .textarea-field:focus {
+          outline: none;
+          border-color: var(--accent-blue);
+          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .syntax-help {
+          margin-top: var(--space-3);
+        }
+
+        .syntax-help summary {
+          font-size: 11px;
+          color: var(--accent-blue);
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: var(--space-1);
+        }
+
+        .syntax-help summary:hover {
+          color: var(--accent-blue-light);
+        }
+
+        .syntax-content {
+          margin-top: var(--space-2);
+          padding: var(--space-3);
+          background: rgba(59, 130, 246, 0.1);
+          border-radius: var(--radius-md);
+          font-size: 11px;
+          color: var(--accent-blue-light);
+        }
+
+        .syntax-content code {
+          background: var(--bg-elevated);
+          padding: 1px 4px;
+          border-radius: 3px;
+          font-family: var(--font-mono);
+        }
+
+        .syntax-content ul {
+          margin: var(--space-2) 0 0 var(--space-4);
+          list-style: disc;
+        }
+
+        .info-section {
+          flex: 1;
+          overflow-y: auto;
+          padding: var(--space-4);
+        }
+
+        .info-box {
+          padding: var(--space-4);
+          background: var(--bg-primary);
+          border-radius: var(--radius-md);
+          font-size: 13px;
+          color: var(--text-secondary);
+        }
+
+        .info-box-title {
+          font-weight: 600;
+          color: var(--text-primary);
+          margin-bottom: var(--space-2);
+        }
+
+        .info-box-hint {
+          font-size: 11px;
+          color: var(--text-muted);
+          margin-top: var(--space-2);
+        }
+      `}</style>
+
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200">
-        <div className="flex items-center gap-2">
-          <Link2 className="w-5 h-5 text-gray-600" />
-          <h2 className="font-semibold text-gray-900">Edge Inspector</h2>
+      <div className="inspector-header">
+        <div className="inspector-title">
+          <Link2 size={18} />
+          <span>Edge Inspector</span>
         </div>
-        <div className="flex items-center gap-1">
+        <div className="inspector-actions">
           <button
             onClick={handleDelete}
-            className="text-gray-400 hover:text-red-600 p-1 rounded hover:bg-red-50"
+            className="inspector-btn delete"
             title="Delete edge"
           >
-            <Trash2 className="w-4 h-4" />
+            <Trash2 size={16} />
           </button>
           <button
             onClick={toggleInspector}
-            className="text-gray-400 hover:text-gray-600 p-1 rounded hover:bg-gray-100"
+            className="inspector-btn"
             title="Hide panel"
           >
-            <Settings className="w-4 h-4 -scale-x-100" />
+            <ChevronRight size={16} />
           </button>
         </div>
       </div>
 
       {/* Connection Info */}
-      <div className="p-4 border-b border-gray-200 bg-gray-50">
-        <div className="flex items-center gap-2 text-sm">
-          <span className="font-medium text-gray-700">{sourceNode?.data.label}</span>
-          <span className="text-gray-400">→</span>
-          <span className="font-medium text-gray-700">{targetNode?.data.label}</span>
+      <div className="connection-info">
+        <div className="connection-flow">
+          <span className="connection-node">{sourceNode?.data.label}</span>
+          <span className="connection-arrow">→</span>
+          <span className="connection-node">{targetNode?.data.label}</span>
         </div>
         {isConditionalSource && (
-          <div className="mt-2 text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">
+          <div className="conditional-hint">
             Conditional edge: source node type supports conditions
           </div>
         )}
       </div>
 
       {/* Label */}
-      <div className="p-4 border-b border-gray-200">
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Label
-        </label>
+      <div className="input-section">
+        <label className="input-label">Label</label>
         <input
           type="text"
           value={edgeData.label || ''}
           onChange={(e) => handleLabelChange(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          className="input-field"
           placeholder="Edge label (optional)"
         />
-        <p className="text-xs text-gray-500 mt-1">
-          Displayed on the edge in the canvas
-        </p>
+        <p className="input-hint">Displayed on the edge in the canvas</p>
       </div>
 
       {/* Condition (only for Router/LoopGuard sources) */}
       {isConditionalSource && (
-        <div className="p-4 border-b border-gray-200">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Condition
-          </label>
+        <div className="input-section">
+          <label className="input-label">Condition</label>
           <textarea
             value={(edgeData.condition as string) || ''}
             onChange={(e) => handleConditionChange(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm font-mono"
+            className="textarea-field"
             placeholder={sourceNode?.data.type === 'Router' ? 'state.status === "success"' : 'state.iterations < 10'}
             rows={4}
           />
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="input-hint">
             {sourceNode?.data.type === 'Router'
-              ? 'Condition to determine if this path is taken. Use state.field for state access.'
-              : 'Loop continuation condition. True = continue loop, False = exit loop.'}
+              ? 'Condition to determine if this path is taken.'
+              : 'Loop continuation condition. True = continue, False = exit.'}
           </p>
 
           {/* Condition Syntax Help */}
-          <details className="mt-3">
-            <summary className="text-xs text-blue-600 cursor-pointer hover:text-blue-700">
+          <details className="syntax-help">
+            <summary>
+              <HelpCircle size={12} />
               Condition syntax help
             </summary>
-            <div className="mt-2 p-3 bg-blue-50 rounded text-xs text-blue-800 space-y-1">
+            <div className="syntax-content">
               <p><strong>State access:</strong> <code>state.field_name</code></p>
-              <p><strong>Comparisons:</strong> <code>===</code>, <code>!==</code>, <code>&gt;</code>, <code>&lt;</code>, <code>&gt;=</code>, <code>&lt;=</code></p>
-              <p><strong>Logic:</strong> <code>&amp;&amp;</code> (and), <code>||</code> (or), <code>!</code> (not)</p>
-              <p><strong>Examples:</strong></p>
-              <ul className="ml-4 list-disc">
+              <p><strong>Comparisons:</strong> <code>===</code>, <code>!==</code>, <code>&gt;</code>, <code>&lt;</code></p>
+              <p><strong>Logic:</strong> <code>&&</code> (and), <code>||</code> (or), <code>!</code> (not)</p>
+              <ul>
                 <li><code>state.count &gt; 5</code></li>
                 <li><code>state.status === "success"</code></li>
-                <li><code>state.items.length === 0</code></li>
               </ul>
             </div>
           </details>
@@ -138,17 +348,17 @@ export function EdgeInspector() {
       )}
 
       {/* Info Section */}
-      <div className="flex-1 overflow-y-auto p-4">
-        <div className="bg-gray-50 rounded-lg p-4 text-sm text-gray-600">
-          <p className="font-medium text-gray-900 mb-2">About Edge Conditions</p>
-          <p className="mb-2">
+      <div className="info-section">
+        <div className="info-box">
+          <p className="info-box-title">About Edge Conditions</p>
+          <p>
             {isConditionalSource
-              ? `This edge originates from a ${sourceNode?.data.type} node, which supports conditional routing. The condition determines when this path is taken during simulation.`
-              : `This edge connects two nodes directly. The source node type (${sourceNode?.data.type}) doesn't support conditional routing.`}
+              ? `This edge originates from a ${sourceNode?.data.type} node, which supports conditional routing.`
+              : `This edge connects directly. ${sourceNode?.data.type} nodes don't support conditional routing.`}
           </p>
           {!isConditionalSource && (
-            <p className="text-xs text-gray-500">
-              Add a Router or Loop Guard node before this edge to enable conditional routing.
+            <p className="info-box-hint">
+              Add a Router or Loop Guard node to enable conditional routing.
             </p>
           )}
         </div>

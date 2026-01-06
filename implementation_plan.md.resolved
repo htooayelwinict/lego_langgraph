@@ -1,0 +1,164 @@
+# UI/UX Redesign: LangGraph Visual Modeler
+
+Transform the current bland, split-theme interface into a modern, cohesive dark-mode application with premium aesthetics.
+
+## Current State Analysis
+
+````carousel
+![Current onboarding modal](file:///Users/lewisae/.gemini/antigravity/brain/64f0e32a-b805-445b-b3a6-d89a949f5e9b/onboarding_modal_1767720345544.png)
+<!-- slide -->
+![Current main interface](file:///Users/lewisae/.gemini/antigravity/brain/64f0e32a-b805-445b-b3a6-d89a949f5e9b/main_interface_1767720358726.png)
+<!-- slide -->
+![Current template gallery](file:///Users/lewisae/.gemini/antigravity/brain/64f0e32a-b805-445b-b3a6-d89a949f5e9b/template_gallery_1767720413912.png)
+````
+
+### Key Issues Identified
+1. **Jarring light/dark split** – Left panels are light, canvas is dark gray
+2. **Generic flat colors** – Pastel node colors lack vibrancy
+3. **Cramped sidebars** – Small icons, dense spacing
+4. **Empty canvas abandonment** – No guidance when canvas is empty
+5. **Inconsistent styling** – Mix of inline styles, Tailwind classes, and CSS-in-JS
+6. **Minimal interaction feedback** – No hover animations, no visual confirmation
+
+---
+
+## Design Direction
+
+> [!IMPORTANT]
+> **Unified Dark Theme** with glassmorphism, vibrant accent gradients, and smooth micro-animations.
+
+### Color Palette
+| Token | Value | Usage |
+|-------|-------|-------|
+| `--bg-primary` | `#0f172a` | Main background |
+| `--bg-elevated` | `#1e293b` | Cards, panels |
+| `--bg-glass` | `rgba(30, 41, 59, 0.8)` | Glassmorphism overlays |
+| `--border` | `rgba(148, 163, 184, 0.1)` | Subtle borders |
+| `--text-primary` | `#f1f5f9` | Primary text |
+| `--text-muted` | `#94a3b8` | Secondary text |
+| `--accent-blue` | `#3b82f6` | Primary actions |
+| `--accent-purple` | `#8b5cf6` | Gradients |
+| `--accent-cyan` | `#06b6d4` | Highlights |
+
+### Node Colors (Vibrant)
+| Node Type | Background | Border | Glow |
+|-----------|------------|--------|------|
+| Start | `#1d4ed8` | `#3b82f6` | Blue glow |
+| LLM | `#059669` | `#10b981` | Emerald glow |
+| Tool | `#d97706` | `#f59e0b` | Amber glow |
+| Router | `#7c3aed` | `#a78bfa` | Purple glow |
+| Reducer | `#db2777` | `#f472b6` | Pink glow |
+| LoopGuard | `#0891b2` | `#22d3ee` | Cyan glow |
+| End | `#dc2626` | `#f87171` | Red glow |
+
+---
+
+## Proposed Changes
+
+### Core Styling
+
+#### [MODIFY] [index.css](file:///Users/lewisae/Documents/VSCode/DeepAgent/LangChain/src/app/index.css)
+- Add CSS custom properties for entire design system
+- Import Google Fonts (Inter)
+- Define dark theme variables
+- Add glassmorphism utility classes
+- Add button and input component styles
+- Add animation keyframes
+
+---
+
+### Layout & Components
+
+#### [MODIFY] [App.tsx](file:///Users/lewisae/Documents/VSCode/DeepAgent/LangChain/src/app/App.tsx)
+- Update grid background from `bg-gray-50` to `--bg-primary`
+- Ensure consistent dark theme across all panels
+
+#### [MODIFY] [NodePalette.tsx](file:///Users/lewisae/Documents/VSCode/DeepAgent/LangChain/src/features/canvas/NodePalette.tsx)
+- Replace inline styles with CSS classes
+- Add glassmorphism card effect
+- Improve node item hover states with scale and glow
+- Better spacing and typography
+
+#### [MODIFY] [Toolbar.tsx](file:///Users/lewisae/Documents/VSCode/DeepAgent/LangChain/src/features/io/Toolbar.tsx)
+- Replace inline styles with CSS classes
+- Add gradient background to toolbar container
+- Improve button hover effects with subtle glow
+- Add icon animations on hover
+
+#### [MODIFY] [StateSchemaPanel.tsx](file:///Users/lewisae/Documents/VSCode/DeepAgent/LangChain/src/features/state/StateSchemaPanel.tsx)
+- Update Tailwind classes for dark theme
+- Improve field item card styling
+- Better empty state styling
+
+#### [MODIFY] [NodeInspector.tsx](file:///Users/lewisae/Documents/VSCode/DeepAgent/LangChain/src/features/canvas/NodeInspector.tsx)
+- Update to dark theme colors
+- Add glassmorphism to panel
+- Improve input styling
+
+#### [MODIFY] [CustomNode.tsx](file:///Users/lewisae/Documents/VSCode/DeepAgent/LangChain/src/features/canvas/nodes/CustomNode.tsx)
+- Update node colors to vibrant palette
+- Add subtle drop shadows
+- Improve active/selected states with glow effects
+- Better handle styling
+
+#### [MODIFY] [CanvasView.tsx](file:///Users/lewisae/Documents/VSCode/DeepAgent/LangChain/src/features/canvas/CanvasView.tsx)
+- Update ReactFlow background color
+- Add gradient or pattern background
+- Improve MiniMap colors
+
+---
+
+### Modals & Overlays
+
+#### [MODIFY] [OnboardingModal.tsx](file:///Users/lewisae/Documents/VSCode/DeepAgent/LangChain/src/app/OnboardingModal.tsx)
+- Update to dark theme with glassmorphism
+- Add gradient accents
+- Improve progress dots with glow
+
+#### [MODIFY] [TemplateGallery.tsx](file:///Users/lewisae/Documents/VSCode/DeepAgent/LangChain/src/features/gallery/TemplateGallery.tsx)
+- Dark theme modal
+- Improve template card hover effects
+- Add subtle gradient borders
+
+#### [MODIFY] [StepControls.tsx](file:///Users/lewisae/Documents/VSCode/DeepAgent/LangChain/src/features/sim/StepControls.tsx)
+- Update to dark theme
+- Style the range slider
+- Add button hover glow effects
+
+---
+
+## Verification Plan
+
+### Automated Tests
+Run existing e2e tests to ensure functionality remains intact:
+```bash
+cd /Users/lewisae/Documents/VSCode/DeepAgent/LangChain
+npm run test:e2e
+```
+
+### Manual Browser Testing
+1. Start dev server: `npm run dev`
+2. Open http://localhost:5173/
+3. Verify:
+   - [ ] Onboarding modal displays correctly with dark theme
+   - [ ] All panels have consistent dark styling
+   - [ ] Node palette items have hover effects
+   - [ ] Nodes on canvas display with vibrant colors
+   - [ ] Toolbar buttons have gradient/glow effects
+   - [ ] Template gallery modal looks cohesive
+   - [ ] Inspector panel is readable and styled
+4. Test interactions:
+   - [ ] Drag nodes from palette to canvas
+   - [ ] Select nodes and verify inspector updates
+   - [ ] Load a template and verify styling
+   - [ ] Run a simulation and check step controls
+
+---
+
+## Summary
+
+This redesign moves from a fragmented light/dark split to a **unified, premium dark theme** with:
+- **Glassmorphism** for depth and modern aesthetics
+- **Vibrant accent colors** for visual interest
+- **Micro-animations** for enhanced UX feedback
+- **Consistent spacing and typography** for readability

@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { getTemplateMetadata, applyTemplate, getAllTemplates } from '@/services/templateLoader';
 import { DifficultyLevel } from '@/models/template';
-import { X, Search } from 'lucide-react';
+import { X, Search, Layers } from 'lucide-react';
 import { useGraphStore } from '@/store/graphStore';
 import { TemplateCard } from './TemplateCard';
 
@@ -47,7 +47,10 @@ export function TemplateGallery() {
     <div className="template-gallery-overlay" onClick={() => setGalleryOpen(false)}>
       <div className="template-gallery-modal" onClick={(e) => e.stopPropagation()}>
         <div className="gallery-header">
-          <h2>Template Gallery</h2>
+          <div className="gallery-title">
+            <Layers size={20} />
+            <h2>Template Gallery</h2>
+          </div>
           <button className="close-btn" onClick={() => setGalleryOpen(false)}>
             <X size={20} />
           </button>
@@ -115,109 +118,164 @@ export function TemplateGallery() {
           left: 0;
           right: 0;
           bottom: 0;
-          background: rgba(0, 0, 0, 0.5);
+          background: rgba(0, 0, 0, 0.8);
+          backdrop-filter: blur(8px);
           display: flex;
           align-items: center;
           justify-content: center;
           z-index: 1000;
+          animation: fade-in 0.2s ease;
         }
+
+        @keyframes fade-in {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+
         .template-gallery-modal {
           width: 90%;
-          max-width: 1000px;
+          max-width: 1100px;
           max-height: 85vh;
-          background: white;
-          border-radius: 16px;
+          background: var(--bg-secondary);
+          border: 1px solid var(--border-subtle);
+          border-radius: var(--radius-xl);
           display: flex;
           flex-direction: column;
+          animation: scale-in 0.2s ease;
+          box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
         }
+
+        @keyframes scale-in {
+          from { opacity: 0; transform: scale(0.97); }
+          to { opacity: 1; transform: scale(1); }
+        }
+
         .gallery-header {
           display: flex;
           align-items: center;
           justify-content: space-between;
           padding: 20px 24px;
-          border-bottom: 1px solid #e2e8f0;
+          border-bottom: 1px solid var(--border-subtle);
         }
+
+        .gallery-title {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+
+        .gallery-title svg {
+          color: var(--accent-purple);
+        }
+
         .gallery-header h2 {
           margin: 0;
           font-size: 20px;
           font-weight: 600;
-          color: #1e293b;
+          color: var(--text-primary);
         }
+
         .close-btn {
           background: none;
           border: none;
-          color: #64748b;
+          color: var(--text-muted);
           cursor: pointer;
-          padding: 4px;
-          border-radius: 6px;
-          transition: all 0.15s;
+          padding: 8px;
+          border-radius: var(--radius-sm);
+          transition: all var(--transition-fast);
         }
+
         .close-btn:hover {
-          background: #f1f5f9;
-          color: #1e293b;
+          background: var(--bg-elevated);
+          color: var(--text-primary);
         }
+
         .gallery-controls {
           padding: 16px 24px;
-          border-bottom: 1px solid #e2e8f0;
+          border-bottom: 1px solid var(--border-subtle);
           display: flex;
           gap: 16px;
           flex-wrap: wrap;
         }
+
         .search-box {
           flex: 1;
           display: flex;
           align-items: center;
-          gap: 8px;
-          padding: 8px 12px;
-          background: #f8fafc;
-          border: 1px solid #e2e8f0;
-          border-radius: 8px;
+          gap: 10px;
+          padding: 10px 14px;
+          background: var(--bg-primary);
+          border: 1px solid var(--border-default);
+          border-radius: var(--radius-md);
           min-width: 200px;
+          transition: all var(--transition-fast);
         }
+
+        .search-box:focus-within {
+          border-color: var(--accent-blue);
+          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .search-box svg {
+          color: var(--text-muted);
+        }
+
         .search-box input {
           flex: 1;
           border: none;
           background: none;
           outline: none;
           font-size: 14px;
+          color: var(--text-primary);
         }
+
+        .search-box input::placeholder {
+          color: var(--text-muted);
+        }
+
         .difficulty-filters {
           display: flex;
           gap: 8px;
         }
+
         .filter-btn {
-          padding: 8px 16px;
-          background: white;
-          border: 1px solid #e2e8f0;
-          border-radius: 8px;
+          padding: 10px 16px;
+          background: var(--bg-primary);
+          border: 1px solid var(--border-default);
+          border-radius: var(--radius-md);
           font-size: 13px;
           font-weight: 500;
-          color: #64748b;
+          color: var(--text-muted);
           cursor: pointer;
-          transition: all 0.15s;
+          transition: all var(--transition-fast);
         }
+
         .filter-btn:hover {
-          border-color: #cbd5e1;
-          background: #f8fafc;
+          border-color: var(--border-strong);
+          color: var(--text-secondary);
         }
+
         .filter-btn.active {
-          background: #3b82f6;
-          border-color: #3b82f6;
+          background: var(--gradient-primary);
+          border-color: transparent;
           color: white;
+          box-shadow: var(--shadow-sm);
         }
+
         .templates-grid {
           flex: 1;
           overflow-y: auto;
           padding: 24px;
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
           gap: 20px;
         }
+
         .no-templates {
           grid-column: 1 / -1;
           text-align: center;
-          padding: 40px;
-          color: #64748b;
+          padding: 60px;
+          color: var(--text-muted);
         }
       `}</style>
     </div>

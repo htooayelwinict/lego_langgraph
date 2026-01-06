@@ -1,7 +1,7 @@
 import { useSimulationStore } from '@/store/simulationStore';
 import { useGraphStore } from '@/store/graphStore';
 import { useStateStore } from '@/store/stateStore';
-import { Play, Pause, SkipBack, SkipForward, RotateCcw } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, RotateCcw, Zap } from 'lucide-react';
 import { useEffect } from 'react';
 
 export function StepControls() {
@@ -89,45 +89,177 @@ export function StepControls() {
   };
 
   return (
-    <div className="flex items-center gap-2 p-2 bg-white rounded-lg border border-gray-200 shadow-sm">
+    <div className="step-controls">
+      <style>{`
+        .step-controls {
+          display: flex;
+          align-items: center;
+          gap: var(--space-2);
+          padding: var(--space-2) var(--space-3);
+          background: var(--bg-glass);
+          backdrop-filter: blur(12px);
+          border: 1px solid var(--border-subtle);
+          border-radius: var(--radius-lg);
+          box-shadow: var(--shadow-lg);
+        }
+
+        .step-btn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 32px;
+          height: 32px;
+          background: transparent;
+          border: none;
+          border-radius: var(--radius-md);
+          color: var(--text-secondary);
+          cursor: pointer;
+          transition: all var(--transition-fast);
+        }
+
+        .step-btn:hover:not(:disabled) {
+          background: var(--bg-glass-light);
+          color: var(--text-primary);
+        }
+
+        .step-btn:disabled {
+          opacity: 0.4;
+          cursor: not-allowed;
+        }
+
+        .step-btn.run {
+          background: var(--gradient-primary);
+          color: white;
+        }
+
+        .step-btn.run:hover:not(:disabled) {
+          transform: scale(1.05);
+          box-shadow: var(--shadow-glow-blue);
+        }
+
+        .step-btn.pause {
+          color: var(--accent-amber);
+        }
+
+        .step-btn.play {
+          color: var(--accent-emerald);
+        }
+
+        .step-divider {
+          width: 1px;
+          height: 20px;
+          background: var(--border-default);
+          margin: 0 var(--space-1);
+        }
+
+        .speed-control {
+          display: flex;
+          align-items: center;
+          gap: var(--space-2);
+        }
+
+        .speed-label {
+          font-size: 11px;
+          color: var(--text-muted);
+        }
+
+        .speed-slider {
+          width: 80px;
+        }
+
+        .speed-value {
+          font-size: 11px;
+          color: var(--text-muted);
+          min-width: 40px;
+        }
+
+        .step-counter {
+          display: flex;
+          align-items: center;
+          gap: var(--space-2);
+          padding: var(--space-1) var(--space-3);
+          background: var(--bg-elevated);
+          border-radius: var(--radius-md);
+          font-size: 12px;
+          font-weight: 500;
+          color: var(--text-secondary);
+        }
+
+        .status-badge {
+          display: inline-flex;
+          align-items: center;
+          padding: var(--space-1) var(--space-2);
+          border-radius: var(--radius-full);
+          font-size: 11px;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        .status-idle {
+          background: rgba(148, 163, 184, 0.2);
+          color: #94a3b8;
+        }
+
+        .status-running {
+          background: rgba(59, 130, 246, 0.2);
+          color: #60a5fa;
+        }
+
+        .status-paused {
+          background: rgba(245, 158, 11, 0.2);
+          color: #fbbf24;
+        }
+
+        .status-complete {
+          background: rgba(16, 185, 129, 0.2);
+          color: #34d399;
+        }
+
+        .status-error {
+          background: rgba(239, 68, 68, 0.2);
+          color: #f87171;
+        }
+      `}</style>
+
       {/* Run button */}
       <button
         onClick={handleRun}
-        className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+        className="step-btn run"
         title="Run simulation"
       >
-        <Play className="w-4 h-4 text-green-600" />
+        <Zap size={16} />
       </button>
 
-      <div className="w-px h-6 bg-gray-200" />
+      <div className="step-divider" />
 
       {/* Step backward */}
       <button
         onClick={stepBackward}
         disabled={!canStepBackward}
-        className="p-2 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg transition-colors"
+        className="step-btn"
         title="Step back"
       >
-        <SkipBack className="w-4 h-4" />
+        <SkipBack size={16} />
       </button>
 
       {/* Play/Pause */}
       {isPlaying ? (
         <button
           onClick={handlePause}
-          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          className="step-btn pause"
           title="Pause"
         >
-          <Pause className="w-4 h-4 text-amber-600" />
+          <Pause size={16} />
         </button>
       ) : (
         <button
           onClick={handlePlay}
           disabled={!hasSteps}
-          className="p-2 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg transition-colors"
+          className="step-btn play"
           title="Play"
         >
-          <Play className="w-4 h-4 text-green-600" />
+          <Play size={16} />
         </button>
       )}
 
@@ -135,29 +267,29 @@ export function StepControls() {
       <button
         onClick={stepForward}
         disabled={!canStepForward}
-        className="p-2 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg transition-colors"
+        className="step-btn"
         title="Step forward"
       >
-        <SkipForward className="w-4 h-4" />
+        <SkipForward size={16} />
       </button>
 
-      <div className="w-px h-6 bg-gray-200" />
+      <div className="step-divider" />
 
       {/* Reset */}
       <button
         onClick={handleReset}
         disabled={!hasSteps}
-        className="p-2 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed rounded-lg transition-colors"
+        className="step-btn"
         title="Reset"
       >
-        <RotateCcw className="w-4 h-4" />
+        <RotateCcw size={16} />
       </button>
 
-      <div className="w-px h-6 bg-gray-200" />
+      <div className="step-divider" />
 
       {/* Speed control */}
-      <div className="flex items-center gap-2">
-        <span className="text-xs text-gray-500">Speed:</span>
+      <div className="speed-control">
+        <span className="speed-label">Speed:</span>
         <input
           type="range"
           min="100"
@@ -166,48 +298,34 @@ export function StepControls() {
           value={speed}
           onChange={(e) => {
             const newSpeed = Number.parseInt(e.target.value, 10);
-            // Invert: higher value = slower (delay), lower = faster
-            // But for UI, show "faster" as higher
             useSimulationStore.getState().setSpeed(2100 - newSpeed);
           }}
-          className="w-20"
+          className="speed-slider"
           title={`Speed: ${2100 - speed}ms delay`}
         />
-        <span className="text-xs text-gray-500 w-12">
+        <span className="speed-value">
           {2100 - speed}ms
         </span>
       </div>
 
       {/* Step counter */}
       {hasSteps && (
-        <div className="ml-2 px-3 py-1 bg-gray-100 rounded-lg">
-          <span className="text-sm font-medium text-gray-700">
-            {trace.currentStep + 1} / {trace.steps.length}
-          </span>
+        <div className="step-counter">
+          {trace.currentStep + 1} / {trace.steps.length}
         </div>
       )}
 
       {/* Status indicator */}
-      <div className="ml-2">
-        <StatusBadge status={trace.status} />
-      </div>
+      <StatusBadge status={trace.status} />
     </div>
   );
 }
 
 function StatusBadge({ status }: { status: string }) {
-  const styles: Record<string, string> = {
-    idle: 'bg-gray-100 text-gray-700',
-    running: 'bg-blue-100 text-blue-700',
-    paused: 'bg-amber-100 text-amber-700',
-    complete: 'bg-green-100 text-green-700',
-    error: 'bg-red-100 text-red-700',
-  };
-
-  const className = styles[status] || styles.idle;
+  const statusClass = `status-badge status-${status}`;
 
   return (
-    <span className={`px-2 py-1 rounded-full text-xs font-medium ${className}`}>
+    <span className={statusClass}>
       {status}
     </span>
   );
