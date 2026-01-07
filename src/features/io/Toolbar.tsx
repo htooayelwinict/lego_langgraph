@@ -1,6 +1,7 @@
 import { useRef, useCallback } from 'react';
-import { Download, Upload, Copy, Trash2, FolderOpen } from 'lucide-react';
+import { Download, Upload, Copy, Trash2, FolderOpen, Eye, EyeOff } from 'lucide-react';
 import { useGraphStore } from '@/store/graphStore';
+import { useUiStore } from '@/store/uiStore';
 import { exportGraphToFile, copyGraphToClipboard } from './exportJson';
 import { importGraphFromFile } from './importJson';
 import { LensToggle } from '@/features/lens';
@@ -8,6 +9,7 @@ import { LensToggle } from '@/features/lens';
 export function Toolbar() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { exportGraph, clearGraph, loadGraph, toggleGallery } = useGraphStore();
+  const { showInspector, showTraceList, toggleInspector, toggleTraceList } = useUiStore();
 
   const handleExport = useCallback(() => {
     const graph = exportGraph();
@@ -114,6 +116,16 @@ export function Toolbar() {
           border-color: rgba(239, 68, 68, 0.3);
         }
 
+        .toolbar-btn.hidden-panel {
+          color: var(--accent-amber);
+          background: rgba(245, 158, 11, 0.1);
+        }
+
+        .toolbar-btn.hidden-panel:hover {
+          background: rgba(245, 158, 11, 0.2);
+          border-color: rgba(245, 158, 11, 0.3);
+        }
+
         .toolbar-divider {
           width: 1px;
           margin: var(--space-2) var(--space-1);
@@ -150,6 +162,27 @@ export function Toolbar() {
       </button>
 
       <LensToggle />
+
+      <div className="toolbar-divider" />
+
+      {/* Panel visibility toggles */}
+      <button
+        className={`toolbar-btn ${!showInspector ? 'hidden-panel' : ''}`}
+        onClick={toggleInspector}
+        title={showInspector ? 'Hide Inspector' : 'Show Inspector'}
+      >
+        {showInspector ? <Eye /> : <EyeOff />}
+        <span>Inspector</span>
+      </button>
+
+      <button
+        className={`toolbar-btn ${!showTraceList ? 'hidden-panel' : ''}`}
+        onClick={toggleTraceList}
+        title={showTraceList ? 'Hide Trace List' : 'Show Trace List'}
+      >
+        {showTraceList ? <Eye /> : <EyeOff />}
+        <span>Trace</span>
+      </button>
 
       <div className="toolbar-divider" />
 

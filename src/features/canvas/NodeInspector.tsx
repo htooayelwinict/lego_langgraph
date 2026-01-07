@@ -47,7 +47,8 @@ export function NodeInspector() {
       <style>{`
         .node-inspector {
           width: 100%;
-          height: 100%;
+          max-height: 50%;
+          flex-shrink: 0;
           background: var(--bg-secondary);
           border-left: 1px solid var(--border-subtle);
           display: flex;

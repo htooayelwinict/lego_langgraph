@@ -10,12 +10,30 @@ npm run dev              # Start dev server on port 5173
 npm run build            # TypeScript check + Vite build
 npm run types            # TypeScript type check only
 npm run lint             # ESLint
+npm run preview          # Preview production build
 
 # Testing
-npm run test             # Run Vitest unit tests
+npm run test             # Vitest watch mode
 npm run test:ui          # Vitest UI mode
 npm run test:run         # Run tests once (watch=false)
+npm run test:e2e:install # Install Playwright browsers
+npm run test:e2e         # Run E2E tests
+npm run test:e2e:ui      # Playwright UI mode
 ```
+
+## Code Style
+
+- **File naming**: `PascalCase.tsx` for components, `camelCase.ts` for utilities
+- **Exports**: Prefer named exports; default only for React components
+- **Conventional Commits**: `feat:`, `fix:`, `refactor:`, `test:`, `docs:`, `chore:`
+- **TypeScript**: Strict mode enabled (`noUncheckedIndexedAccess`, `noUnusedLocals`, `noUnusedParameters`)
+
+## Test Conventions
+
+- **Arrange-Act-Assert** structure
+- **Reset store state** in `beforeEach` each test
+- Store tests: `useGraphStore.getState().clearGraph()` before each test
+- Mock external deps (localStorage, fetch)
 
 ## Architecture
 

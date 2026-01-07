@@ -1,7 +1,7 @@
 import { useSimulationStore } from '@/store/simulationStore';
 import { useGraphStore } from '@/store/graphStore';
 import { useStateStore } from '@/store/stateStore';
-import { Play, Pause, SkipBack, SkipForward, RotateCcw, Zap } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, RotateCcw, Zap, GripVertical } from 'lucide-react';
 import { useEffect } from 'react';
 
 export function StepControls() {
@@ -220,7 +220,34 @@ export function StepControls() {
           background: rgba(239, 68, 68, 0.2);
           color: #f87171;
         }
+
+        .drag-handle {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 20px;
+          height: 32px;
+          cursor: grab;
+          user-select: none;
+          color: var(--text-muted);
+          padding-right: var(--space-2);
+          border-right: 1px solid var(--border-subtle);
+          margin-right: var(--space-2);
+        }
+
+        .drag-handle:active {
+          cursor: grabbing;
+        }
+
+        .drag-handle:hover {
+          color: var(--text-secondary);
+        }
       `}</style>
+
+      {/* Drag handle */}
+      <div className="drag-handle" data-drag-handle>
+        <GripVertical size={16} />
+      </div>
 
       {/* Run button */}
       <button
@@ -298,13 +325,14 @@ export function StepControls() {
           value={speed}
           onChange={(e) => {
             const newSpeed = Number.parseInt(e.target.value, 10);
-            useSimulationStore.getState().setSpeed(2100 - newSpeed);
+            useSimulationStore.getState().setSpeed(newSpeed);
           }}
           className="speed-slider"
-          title={`Speed: ${2100 - speed}ms delay`}
+          title={`Speed: ${speed}ms delay`}
+          style={{ direction: 'rtl' }}
         />
         <span className="speed-value">
-          {2100 - speed}ms
+          {speed}ms
         </span>
       </div>
 
