@@ -1,12 +1,23 @@
 import { useGraphStore } from '@/store/graphStore';
 import { useUiStore } from '@/store/uiStore';
-import { Link2, Trash2, ChevronRight, HelpCircle } from 'lucide-react';
+import { useStateStore } from '@/store/stateStore';
+import { validateCondition, type ConditionValidationResult } from '@/services/conditionEvaluator';
+import { Link2, Trash2, ChevronRight, HelpCircle, AlertTriangle } from 'lucide-react';
+import { useMemo } from 'react';
 
 export function EdgeInspector() {
   const { nodes, edges, selectedEdgeId, updateEdge, deleteEdge } = useGraphStore();
   const { showInspector, toggleInspector } = useUiStore();
+  const { schema } = useStateStore();
 
   const selectedEdge = edges.find((e) => e.id === selectedEdgeId);
+
+  // Validate condition against schema
+  const conditionValidation = useMemo((): ConditionValidationResult | null => {
+    const condition = selectedEdge?.data?.condition;
+    if (!condition) return null;
+    return validateCondition(condition, schema);
+  }, [selectedEdge?.data?.condition, schema]);
 
   // Get source and target nodes for context
   const sourceNode = selectedEdge
@@ -259,6 +270,32 @@ export function EdgeInspector() {
           color: var(--text-muted);
           margin-top: var(--space-2);
         }
+
+        .validation-warnings {
+          display: flex;
+          flex-direction: column;
+          gap: var(--space-2);
+        }
+
+        .validation-warning,
+        .validation-error {
+          display: flex;
+          align-items: center;
+          gap: var(--space-2);
+          padding: var(--space-2) var(--space-3);
+          border-radius: var(--radius-sm);
+          font-size: 11px;
+        }
+
+        .validation-warning {
+          background: rgba(251, 191, 36, 0.1);
+          color: var(--accent-amber);
+        }
+
+        .validation-error {
+          background: rgba(239, 68, 68, 0.1);
+          color: var(--accent-red-light);
+        }
       `}</style>
 
       {/* Header */}
@@ -345,6 +382,24 @@ export function EdgeInspector() {
               </ul>
             </div>
           </details>
+
+          {/* Schema Validation Warnings */}
+          {conditionValidation && (conditionValidation.warnings.length > 0 || conditionValidation.errors.length > 0) && (
+            <div className="validation-warnings" style={{ marginTop: 'var(--space-3)' }}>
+              {conditionValidation.warnings.map((warning, idx) => (
+                <div key={`warn-${idx}`} className="validation-warning">
+                  <AlertTriangle size={12} style={{ color: 'var(--accent-amber)' }} />
+                  <span>{warning}</span>
+                </div>
+              ))}
+              {conditionValidation.errors.map((error, idx) => (
+                <div key={`err-${idx}`} className="validation-error">
+                  <AlertTriangle size={12} style={{ color: 'var(--accent-red-light)' }} />
+                  <span>{error}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 

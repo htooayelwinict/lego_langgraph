@@ -14,8 +14,8 @@ export const ConditionEdge = memo(
     data,
     selected,
   }: EdgeProps) => {
-    const { activeEdgeIds } = useSimulationStore();
-    const isActive = activeEdgeIds.includes(id);
+    const activeEdgeIds = useSimulationStore((state) => state.activeEdgeIds);
+    const isHighlighted = activeEdgeIds.includes(id);
 
     const [edgePath] = getBezierPath({
       sourceX,
@@ -28,8 +28,8 @@ export const ConditionEdge = memo(
 
     return (
       <>
-        {/* Glow effect for active edges */}
-        {isActive && (
+        {/* Glow effect for highlighted edges */}
+        {isHighlighted && (
           <BaseEdge
             id={`${id}-glow`}
             path={edgePath}
@@ -45,14 +45,14 @@ export const ConditionEdge = memo(
           id={id}
           path={edgePath}
           style={{
-            stroke: isActive
+            stroke: isHighlighted
               ? '#22c55e'
               : selected
               ? '#3b82f6'
               : '#94a3b8',
-            strokeWidth: isActive ? 3 : selected ? 3 : 2,
-            strokeDasharray: isActive ? '5 5' : undefined,
-            animation: isActive ? 'dash 300ms linear infinite' : undefined,
+            strokeWidth: isHighlighted ? 3 : selected ? 3 : 2,
+            strokeDasharray: isHighlighted ? '5 5' : undefined,
+            animation: isHighlighted ? 'dash 300ms linear infinite' : undefined,
           }}
         />
 

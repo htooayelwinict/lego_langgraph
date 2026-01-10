@@ -5,6 +5,64 @@
 
 import type { GraphState } from '@/models/simulation';
 import type { GraphEdge } from '@/models/graph';
+import type { StateSchema } from '@/models/state';
+
+/**
+ * Validation result for conditions
+ */
+export interface ConditionValidationResult {
+  valid: boolean;
+  errors: string[];
+  warnings: string[];
+}
+
+/**
+ * Validate a condition against a state schema
+ */
+export function validateCondition(
+  condition: string,
+  schema: StateSchema
+): ConditionValidationResult {
+  const refs = extractStateReferences(condition);
+  const schemaKeys = new Set(schema.fields.map((f) => f.key));
+
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  for (const ref of refs) {
+    const topKey = ref.split('.')[0];
+    if (topKey && !schemaKeys.has(topKey)) {
+      warnings.push(`Unknown field reference: state.${ref}`);
+    }
+  }
+
+  return { valid: errors.length === 0, errors, warnings };
+}
+
+/**
+ * Validate a field reference (for node configs)
+ */
+export function validateFieldReference(
+  fieldKey: string,
+  schema: StateSchema,
+  expectedType?: string
+): ConditionValidationResult {
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  const field = schema.fields.find((f) => f.key === fieldKey);
+
+  if (!field) {
+    errors.push(`Unknown field: "${fieldKey}"`);
+    return { valid: false, errors, warnings };
+  }
+
+  if (expectedType && field.type !== expectedType) {
+    errors.push(`Field "${fieldKey}" has type "${field.type}", expected "${expectedType}"`);
+  }
+
+  return { valid: errors.length === 0, errors, warnings };
+}
 
 /**
  * Safely evaluate a condition expression against state

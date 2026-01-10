@@ -8,6 +8,9 @@ import {
 } from '@/models/simulation';
 import { GraphModel } from '@/models/graph';
 import { createSimulationEngine } from '@/services/SimulationEngine';
+import { buildStateDefaults } from './stateStore';
+import { validateSimulationGraph } from '@/services/simulationValidator';
+import { useStateStore } from './stateStore';
 
 interface SimulationStore {
   trace: SimulationTrace;
@@ -15,6 +18,7 @@ interface SimulationStore {
   isPlaying: boolean;
   speed: number; // milliseconds between steps
   error: SimulationError | null;
+  validationErrors: SimulationError[];
 
   setTrace: (trace: SimulationTrace) => void;
   reset: () => void;
@@ -33,6 +37,7 @@ interface SimulationStore {
   // Run simulation
   runSimulation: (graph: GraphModel, initialState?: Record<string, unknown>) => void;
   clearError: () => void;
+  clearValidationErrors: () => void;
 }
 
 export const useSimulationStore = create<SimulationStore>((set, get) => ({
@@ -41,6 +46,7 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
   isPlaying: false,
   speed: 1000,
   error: null,
+  validationErrors: [],
   activeNodeIds: [],
   activeEdgeIds: [],
 
@@ -51,6 +57,7 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     executionTrace: null,
     isPlaying: false,
     error: null,
+    validationErrors: [],
     activeNodeIds: [],
     activeEdgeIds: [],
   }),
@@ -109,8 +116,15 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
       activeEdgeIds: [],
     });
 
+    // Pre-run validation (includes schema-aware checks)
+    const schema = useStateStore.getState().schema;
+    const validationErrors = validateSimulationGraph(graph, schema);
+    set({ validationErrors });
+
     try {
-      const engine = createSimulationEngine(graph, { initialState });
+      // Merge schema defaults with user-provided state
+      const mergedState = buildStateDefaults(initialState);
+      const engine = createSimulationEngine(graph, { initialState: mergedState });
       const executionTrace = engine.run();
 
       // Convert ExecutionTrace to SimulationTrace for UI
@@ -170,4 +184,21 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
   },
 
   clearError: () => set({ error: null }),
+  clearValidationErrors: () => set({ validationErrors: [] }),
 }));
+
+// Note: Cross-store selectors removed due to infinite re-render issues.
+// Components should subscribe to both stores separately for hover state.
+
+// Helper to find step by node ID
+export const findStepByNodeId = (nodeId: string): number | null => {
+  const executionTrace = useSimulationStore.getState().executionTrace;
+  if (!executionTrace) return null;
+
+  for (let i = 0; i < executionTrace.steps.length; i++) {
+    if (executionTrace.steps[i]!.activeNodeId === nodeId) {
+      return i;
+    }
+  }
+  return null;
+};

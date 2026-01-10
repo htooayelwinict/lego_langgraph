@@ -2,6 +2,8 @@
  * Core graph data models for LangGraph Visual Modeler
  */
 
+import type { StateSchema } from './state';
+
 export type NodeType = 'Start' | 'LLM' | 'Tool' | 'Router' | 'Reducer' | 'LoopGuard' | 'End';
 
 export interface GraphNode {
@@ -38,6 +40,7 @@ export interface GraphModel {
   nodes: GraphNode[];
   edges: GraphEdge[];
   metadata?: GraphMetadata;
+  stateSchema?: StateSchema;
 }
 
 /**

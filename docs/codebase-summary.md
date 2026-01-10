@@ -12,9 +12,9 @@ src/
 │   └── OnboardingModal.tsx       # First-time user guide
 │
 ├── models/                       # Core data models (4 files)
-│   ├── graph.ts                  # GraphModel, GraphNode, GraphEdge
+│   ├── graph.ts                  # GraphModel, GraphNode, GraphEdge (+ StateSchema)
 │   ├── state.ts                  # StateSchema, StateField types
-│   ├── simulation.ts             # ExecutionTrace, SimulationStep
+│   ├── simulation.ts             # ExecutionTrace, SimulationStep (+ SchemaValidationResult)
 │   └── template.ts               # Template system types
 │
 ├── store/                        # Zustand state (4 stores)
@@ -106,8 +106,8 @@ tests/
 | Store | State | Key Actions |
 |-------|-------|-------------|
 | [`graphStore`](src/store/graphStore.ts) | nodes, edges, selectedId, lensEnabled | addNode, updateNode, deleteNode, loadGraph |
-| [`stateStore`](src/store/stateStore.ts) | fields, validationErrors | addField, updateField, getInitialState |
-| [`simulationStore`](src/store/simulationStore.ts) | trace, isPlaying, speed, error | stepForward, runSimulation, reset |
+| [`stateStore`](src/store/stateStore.ts) | fields, validationErrors | addField, updateField, getInitialState, buildStateDefaults |
+| [`simulationStore`](src/store/simulationStore.ts) | trace, isPlaying, speed, error, validationErrors | stepForward, runSimulation, reset, clearValidationErrors |
 | [`uiStore`](src/store/uiStore.ts) | toasts, modalVisibility | showToast, openModal, closeModal |
 
 ## Services Summary
@@ -115,8 +115,8 @@ tests/
 | Service | Purpose |
 |---------|---------|
 | [`SimulationEngine`](src/services/SimulationEngine.ts) | Deterministic graph execution |
-| [`conditionEvaluator`](src/services/conditionEvaluator.ts) | Safe condition parsing (no eval) |
-| [`simulationValidator`](src/services/simulationValidator.ts) | Pre-flight graph checks |
+| [`conditionEvaluator`](src/services/conditionEvaluator.ts) | Safe condition parsing (no eval), schema-aware validation |
+| [`simulationValidator`](src/services/simulationValidator.ts) | Pre-flight graph + schema checks |
 | [`templateLoader`](src/services/templateLoader.ts) | Load template JSONs |
 
 ## File Counts

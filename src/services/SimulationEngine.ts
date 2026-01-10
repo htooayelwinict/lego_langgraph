@@ -14,6 +14,7 @@ import { explainEdgeFiring } from './conditionEvaluator';
 
 /**
  * Simulation options
+ * @property initialState - Should already include schema defaults (use buildStateDefaults)
  */
 export interface SimulationOptions {
   maxSteps?: number; // Safety limit to prevent infinite loops
@@ -110,8 +111,10 @@ export class SimulationEngine {
 
       visitedInPath.add(currentNodeId);
 
+      const startedAt = performance.now();
       const stateBefore = { ...currentState };
       const stateAfter = this.executeNode(node, stateBefore);
+      const endedAt = performance.now();
 
       const outgoing = this.edgeMap.get(node.id) ?? [];
       const { nextNodeId, firedEdgeIds, blockedEdgeIds, explanation } =
@@ -126,6 +129,9 @@ export class SimulationEngine {
         stateBefore,
         stateAfter,
         explanation,
+        startedAt,
+        endedAt,
+        durationMs: Math.round(endedAt - startedAt),
       });
 
       currentState = stateAfter;

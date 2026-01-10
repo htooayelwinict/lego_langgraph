@@ -1,10 +1,16 @@
 import { GraphModel } from '@/models/graph';
+import { useStateStore } from '@/store/stateStore';
 
 /**
  * Export graph to JSON file
  */
 export function exportGraphToFile(graph: GraphModel): void {
-  const blob = new Blob([JSON.stringify(graph, null, 2)], {
+  const schema = useStateStore.getState().schema;
+  const exportData = {
+    ...graph,
+    stateSchema: schema,
+  };
+  const blob = new Blob([JSON.stringify(exportData, null, 2)], {
     type: 'application/json',
   });
   const url = URL.createObjectURL(blob);
@@ -21,7 +27,12 @@ export function exportGraphToFile(graph: GraphModel): void {
  * Export graph to JSON string
  */
 export function exportGraphToString(graph: GraphModel): string {
-  return JSON.stringify(graph, null, 2);
+  const schema = useStateStore.getState().schema;
+  const exportData = {
+    ...graph,
+    stateSchema: schema,
+  };
+  return JSON.stringify(exportData, null, 2);
 }
 
 /**

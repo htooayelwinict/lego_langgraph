@@ -1,11 +1,21 @@
 import { useSimulationStore } from '@/store/simulationStore';
 import { useUiStore } from '@/store/uiStore';
 import { TraceStepItem } from './TraceStepItem';
+import { TimelineScrubber } from './components/TimelineScrubber';
+import { TraceFilters } from './components/TraceFilters';
 import { List, ChevronRight } from 'lucide-react';
+import { useTraceUiStore, selectFilteredStepIds } from '@/store/traceUiStore';
 
 export function TraceListPanel() {
   const { trace, executionTrace, jumpToStep } = useSimulationStore();
   const { showTraceList, toggleTraceList } = useUiStore();
+  const filterQuery = useTraceUiStore((state) => state.filterQuery);
+  const statusFilters = useTraceUiStore((state) => state.statusFilters);
+
+  // Get filtered step indices
+  const filteredStepIds = executionTrace
+    ? selectFilteredStepIds(executionTrace, filterQuery, statusFilters)
+    : [];
 
   // Don't show if panel is hidden
   if (!showTraceList) {
@@ -263,17 +273,40 @@ export function TraceListPanel() {
         </div>
       </div>
 
+      {/* Timeline Scrubber */}
+      <div className="px-4 py-3 border-b border-slate-800/50">
+        <TimelineScrubber totalSteps={executionTrace.steps.length} />
+      </div>
+
+      {/* Filters */}
+      <div className="px-4 py-3 border-b border-slate-800/50">
+        <TraceFilters />
+      </div>
+
       {/* Trace list */}
       <div className="trace-list">
-        {executionTrace.steps.map((step, index) => (
-          <TraceStepItem
-            key={index}
-            step={step}
-            index={index}
-            isActive={index === trace.currentStep}
-            onClick={() => jumpToStep(index)}
-          />
-        ))}
+        {filteredStepIds.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full text-slate-500 text-sm py-8">
+            <p>No steps match your filters</p>
+            {filterQuery || statusFilters.length > 0 ? (
+              <p className="text-xs mt-2">Try adjusting your search or filters</p>
+            ) : null}
+          </div>
+        ) : (
+          filteredStepIds.map((index) => {
+            const step = executionTrace.steps[index];
+            if (!step) return null;
+            return (
+              <TraceStepItem
+                key={index}
+                step={step}
+                index={index}
+                isActive={index === trace.currentStep}
+                onClick={() => jumpToStep(index)}
+              />
+            );
+          })
+        )}
       </div>
 
       {/* Final state indicator */}

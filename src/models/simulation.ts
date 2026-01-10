@@ -31,6 +31,14 @@ export interface GraphState {
 }
 
 /**
+ * Schema validation result for a step
+ */
+export interface SchemaValidationResult {
+  missingFields: string[];
+  invalidTypes: Array<{ field: string; expected: string; actual: string }>;
+}
+
+/**
  * Detailed step trace with before/after state
  */
 export interface DetailedStepTrace {
@@ -42,6 +50,11 @@ export interface DetailedStepTrace {
   stateBefore: GraphState;
   stateAfter: GraphState;
   explanation: string;
+  schemaValidation?: SchemaValidationResult;
+  // Timing data for waterfall visualization
+  startedAt: number;
+  endedAt: number;
+  durationMs: number;
 }
 
 /**
@@ -57,7 +70,7 @@ export interface ExecutionTrace {
 /**
  * Simulation error types
  */
-export type SimulationErrorType = 'cycle' | 'unreachable' | 'no_start' | 'max_steps';
+export type SimulationErrorType = 'cycle' | 'unreachable' | 'no_start' | 'max_steps' | 'invalid_field_ref';
 
 /**
  * Simulation error details

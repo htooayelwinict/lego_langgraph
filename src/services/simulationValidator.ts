@@ -5,11 +5,15 @@
 
 import type { GraphModel } from '@/models/graph';
 import type { SimulationError } from '@/models/simulation';
+import type { StateSchema } from '@/models/state';
 
 /**
  * Validate graph for simulation issues
  */
-export function validateSimulationGraph(graph: GraphModel): SimulationError[] {
+export function validateSimulationGraph(
+  graph: GraphModel,
+  schema?: StateSchema
+): SimulationError[] {
   const errors: SimulationError[] = [];
 
   // Check for Start node
@@ -77,7 +81,104 @@ export function validateSimulationGraph(graph: GraphModel): SimulationError[] {
     });
   }
 
+  // Schema-aware validation
+  if (schema) {
+    errors.push(...validateSchemaReferences(graph, schema));
+  }
+
   return errors;
+}
+
+/**
+ * Validate schema field references in edge conditions and node configs
+ */
+function validateSchemaReferences(
+  graph: GraphModel,
+  schema: StateSchema
+): SimulationError[] {
+  const errors: SimulationError[] = [];
+  const schemaKeys = new Set(schema.fields.map((f) => f.key));
+
+  // Check edge conditions for invalid field references
+  for (const edge of graph.edges) {
+    if (edge.data?.condition) {
+      const invalidRefs = extractInvalidFieldRefs(edge.data.condition, schemaKeys);
+      for (const ref of invalidRefs) {
+        errors.push({
+          type: 'invalid_field_ref',
+          message: `Edge "${edge.data?.label || edge.id}" references unknown field "state.${ref}"`,
+          relatedIds: [edge.id],
+        });
+      }
+    }
+  }
+
+  // Check node configs for invalid field references
+  for (const node of graph.nodes) {
+    const config = node.data?.config;
+    if (!config) continue;
+
+    // Router: validate targetField
+    if (node.type === 'Router' && typeof config.targetField === 'string') {
+      if (!schemaKeys.has(config.targetField)) {
+        errors.push({
+          type: 'invalid_field_ref',
+          message: `Router node "${node.data.label || node.id}" references unknown field "${config.targetField}"`,
+          relatedIds: [node.id],
+        });
+      }
+    }
+
+    // LoopGuard: validate counterField (should be number type)
+    if (node.type === 'LoopGuard' && typeof config.counterField === 'string') {
+      const field = schema.fields.find((f) => f.key === config.counterField);
+      if (!field) {
+        errors.push({
+          type: 'invalid_field_ref',
+          message: `LoopGuard node "${node.data.label || node.id}" references unknown field "${config.counterField}"`,
+          relatedIds: [node.id],
+        });
+      } else if (field.type !== 'number') {
+        errors.push({
+          type: 'invalid_field_ref',
+          message: `LoopGuard node "${node.data.label || node.id}" counterField must be number type, got ${field.type}`,
+          relatedIds: [node.id],
+        });
+      }
+    }
+  }
+
+  return errors;
+}
+
+/**
+ * Extract invalid field references from condition string
+ * Matches patterns like: state.fieldName, state['fieldName'], state["fieldName"]
+ */
+function extractInvalidFieldRefs(
+  condition: string,
+  validKeys: Set<string>
+): string[] {
+  const refs: string[] = [];
+
+  // Match state.fieldName pattern
+  const dotPattern = /state\.([a-zA-Z_][a-zA-Z0-9_]*)/g;
+  let match;
+  while ((match = dotPattern.exec(condition)) !== null) {
+    if (!validKeys.has(match[1]!)) {
+      refs.push(match[1]!);
+    }
+  }
+
+  // Match state['fieldName'] and state["fieldName"] patterns
+  const bracketPattern = /state\[['"]([^'"]+)['"]\]/g;
+  while ((match = bracketPattern.exec(condition)) !== null) {
+    if (!validKeys.has(match[1]!)) {
+      refs.push(match[1]!);
+    }
+  }
+
+  return [...new Set(refs)]; // Deduplicate
 }
 
 /**
@@ -169,6 +270,8 @@ export function getErrorMessage(error: SimulationError): string {
       return `Missing Start Node: ${error.message}`;
     case 'max_steps':
       return `Max Steps Exceeded: ${error.message}`;
+    case 'invalid_field_ref':
+      return `Invalid Field Reference: ${error.message}`;
     default:
       return error.message;
   }
@@ -186,6 +289,8 @@ export function getErrorSeverity(error: SimulationError): 'error' | 'warning' {
     case 'max_steps':
       return 'error';
     case 'unreachable':
+      return 'warning';
+    case 'invalid_field_ref':
       return 'warning';
     default:
       return 'warning';

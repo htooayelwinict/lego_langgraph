@@ -84,5 +84,16 @@ export function loadPersistedState() {
   return false;
 }
 
+/**
+ * Build initial state by merging schema defaults with user-provided state
+ * User values override defaults
+ */
+export function buildStateDefaults(
+  userState: Record<string, unknown> = {}
+): Record<string, unknown> {
+  const schemaDefaults = createInitialState(useStateStore.getState().schema);
+  return { ...schemaDefaults, ...userState };
+}
+
 // Auto-save on changes
 useStateStore.subscribe(() => persistStateStore());

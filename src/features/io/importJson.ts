@@ -1,5 +1,7 @@
 import { GraphModel } from '@/models/graph';
 import { validateGraph } from '@/models/graph';
+import { createEmptyStateSchema, validateStateSchema } from '@/models/state';
+import { useStateStore } from '@/store/stateStore';
 
 // Maximum file size for JSON import (5MB)
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
@@ -90,6 +92,23 @@ function validateAndNormalizeGraph(graph: unknown): GraphModel {
     console.warn('Graph validation warnings:', errors);
   }
 
+  // Handle state schema
+  let schema = g.stateSchema;
+  if (schema) {
+    // Validate the schema
+    const schemaErrors = validateStateSchema(schema);
+    if (schemaErrors.length > 0) {
+      console.warn('State schema validation errors:', schemaErrors);
+    }
+    // Set the schema in the store
+    useStateStore.getState().setSchema(schema);
+  } else {
+    // No schema in file - create empty
+    const emptySchema = createEmptyStateSchema();
+    useStateStore.getState().setSchema(emptySchema);
+    schema = emptySchema;
+  }
+
   return {
     version: 'v1',
     nodes: g.nodes || [],
@@ -99,5 +118,6 @@ function validateAndNormalizeGraph(graph: unknown): GraphModel {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     },
+    stateSchema: schema,
   };
 }

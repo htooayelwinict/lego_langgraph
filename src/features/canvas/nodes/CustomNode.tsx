@@ -1,6 +1,7 @@
-import { memo } from 'react';
+import { memo, useCallback } from 'react';
 import { Handle, Position, NodeProps } from 'reactflow';
-import { useSimulationStore } from '@/store/simulationStore';
+import { useSimulationStore, findStepByNodeId } from '@/store/simulationStore';
+import { useTraceUiStore } from '@/store/traceUiStore';
 
 // Vibrant node color schemes for dark theme
 const nodeColors = {
@@ -127,20 +128,42 @@ const baseNodeStyles = `
 `;
 
 export const CustomNode = memo(({ id, data, selected }: NodeProps) => {
-  const { activeNodeIds } = useSimulationStore();
-  const isActive = activeNodeIds.includes(id);
+  const activeNodeIds = useSimulationStore((state) => state.activeNodeIds);
+  const hoveredNodeId = useTraceUiStore((state) => state.hoveredNodeId);
+  const jumpToStep = useSimulationStore((state) => state.jumpToStep);
+  const setHoveredNodeId = useTraceUiStore((state) => state.setHoveredNodeId);
+
+  const isHighlighted = activeNodeIds.includes(id) || hoveredNodeId === id;
   const type = data.type as keyof typeof nodeColors;
   const colors = nodeColors[type] || nodeColors.Start;
 
+  const handleMouseEnter = useCallback(() => {
+    setHoveredNodeId(id);
+  }, [id, setHoveredNodeId]);
+
+  const handleMouseLeave = useCallback(() => {
+    setHoveredNodeId(null);
+  }, [setHoveredNodeId]);
+
+  const handleClick = useCallback(() => {
+    const stepIndex = findStepByNodeId(id);
+    if (stepIndex !== null) {
+      jumpToStep(stepIndex);
+    }
+  }, [id, jumpToStep]);
+
   return (
     <div
-      className={`custom-node${isActive ? ' active' : ''}${selected ? ' selected' : ''}`}
+      className={`custom-node${isHighlighted ? ' active' : ''}${selected ? ' selected' : ''}`}
       style={{
         '--node-bg': colors.bg,
         '--node-border': colors.border,
         '--node-icon': colors.icon,
         '--node-glow': colors.glow,
       } as React.CSSProperties}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      onClick={handleClick}
     >
       <style>{baseNodeStyles}</style>
 

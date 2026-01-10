@@ -454,6 +454,16 @@ Pre-simulation checks:
 - No duplicate node IDs
 - Reachability analysis (BFS)
 - Cycle detection (DFS)
+- Schema field reference validation (edge conditions, node configs)
+
+**Error Types:**
+- `no_start` - Missing Start node
+- `no_end` - Missing End node
+- `orphaned_edge` - Edge references non-existent node
+- `duplicate_id` - Multiple nodes with same ID
+- `cycle` - Circular execution path
+- `unreachable` - Nodes not reachable from Start
+- `invalid_field_ref` - Edge/condition references undefined schema field
 
 ---
 
@@ -591,6 +601,25 @@ USER CLICKS "RUN"
         ▼
 ┌────────────────────────────────┐
 │ runSimulation(graph, state)    │
+└────────────────────────────────┘
+        │
+        ▼
+┌────────────────────────────────┐
+│ PRE-RUN VALIDATION             │
+│ • validateSimulationGraph()    │
+│   - Schema field references    │
+│   - Start/End nodes            │
+│   - Orphaned edges             │
+│   - Cycle detection            │
+│ • Store validationErrors       │
+└────────────────────────────────┘
+        │
+        ▼
+┌────────────────────────────────┐
+│ BUILD STATE DEFAULTS           │
+│ buildStateDefaults(userState)  │
+│ • Merge schema defaults        │
+│ • Apply user overrides         │
 └────────────────────────────────┘
         │
         ▼
