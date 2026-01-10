@@ -6,12 +6,14 @@ import ReactFlow, {
   NodeTypes,
   EdgeTypes,
   ConnectionMode,
+  useReactFlow,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { CustomNode } from './nodes';
 import { ConditionEdge } from './edges';
 import { useGraphStore } from '@/store/graphStore';
 import { NodePalette } from './NodePalette';
+import { NodeType } from '@/models/graph';
 
 const nodeTypes: NodeTypes = {
   custom: CustomNode,
@@ -30,7 +32,33 @@ export function CanvasView() {
     onConnect,
     setSelectedNode,
     setSelectedEdge,
+    addNode,
   } = useGraphStore();
+
+  const { screenToFlowPosition } = useReactFlow();
+
+  // Handle drag and drop from palette
+  const onDragOver = useCallback((event: React.DragEvent) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+  }, []);
+
+  const onDrop = useCallback(
+    (event: React.DragEvent) => {
+      event.preventDefault();
+
+      const type = event.dataTransfer.getData('application/reactflow') as NodeType;
+      if (!type) return;
+
+      const position = screenToFlowPosition({
+        x: event.clientX,
+        y: event.clientY,
+      });
+
+      addNode(type, position);
+    },
+    [addNode, screenToFlowPosition]
+  );
 
   // Handle node selection
   const onNodeClick = useCallback((_event: React.MouseEvent, node: { id: string }) => {
@@ -197,6 +225,8 @@ export function CanvasView() {
           onNodeClick={onNodeClick}
           onEdgeClick={onEdgeClick}
           onPaneClick={onPaneClick}
+          onDrop={onDrop}
+          onDragOver={onDragOver}
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}
           connectionMode={ConnectionMode.Loose}

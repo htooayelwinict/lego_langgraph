@@ -15,6 +15,9 @@ A deterministic, explainable visual modeling environment for LangGraph applicati
 
 | Doc | Description |
 |-----|-------------|
+| [Project Overview & PDR](docs/project-overview-pdr.md) | Goals, features, user stories |
+| [Codebase Summary](docs/codebase-summary.md) | File structure and key files |
+| [Code Standards](docs/code-standards.md) | Conventions and patterns |
 | [Architecture](docs/architecture.md) | Tech stack, data flow, stores, services |
 | [Testing](docs/testing.md) | Unit and E2E test conventions |
 | [Contributing](docs/contributing.md) | Setup, workflow, code style |

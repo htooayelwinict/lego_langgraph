@@ -1,5 +1,4 @@
 import { useCallback } from 'react';
-import { useReactFlow } from 'reactflow';
 import { NodeType } from '@/models/graph';
 import { useGraphStore } from '@/store/graphStore';
 import {
@@ -23,35 +22,12 @@ const nodeTypes: { type: NodeType; label: string; description: string; icon: Rea
 ];
 
 export function NodePalette() {
-  const { screenToFlowPosition } = useReactFlow();
   const { addNode } = useGraphStore();
 
   const onDragStart = useCallback((event: React.DragEvent, type: NodeType) => {
     event.dataTransfer.setData('application/reactflow', type);
     event.dataTransfer.effectAllowed = 'move';
   }, []);
-
-  const onDragOver = useCallback((event: React.DragEvent) => {
-    event.preventDefault();
-    event.dataTransfer.dropEffect = 'move';
-  }, []);
-
-  const onDrop = useCallback(
-    (event: React.DragEvent) => {
-      event.preventDefault();
-
-      const type = event.dataTransfer.getData('application/reactflow') as NodeType;
-      if (!type) return;
-
-      const position = screenToFlowPosition({
-        x: event.clientX,
-        y: event.clientY,
-      });
-
-      addNode(type, position);
-    },
-    [addNode, screenToFlowPosition]
-  );
 
   const onDoubleClick = useCallback(
     (type: NodeType) => {
@@ -62,11 +38,7 @@ export function NodePalette() {
   );
 
   return (
-    <div
-      className="node-palette"
-      onDragOver={onDragOver}
-      onDrop={onDrop}
-    >
+    <div className="node-palette">
       <style>{`
         .node-palette {
           width: 200px;
